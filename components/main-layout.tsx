@@ -8,8 +8,8 @@ export default function MainLayout({
     return (
         <div className="flex h-screen bg-background">
             <Sidebar />
-            <main className="flex-1 overflow-y-auto">
-                <div className="max-w-5xl mx-auto">{children}</div>
+            <main className="flex-1 grid grid-cols-12">
+                <div className="col-span-10 w-full border p-4 overflow-auto">{children}</div>
             </main>
         </div>
     );
