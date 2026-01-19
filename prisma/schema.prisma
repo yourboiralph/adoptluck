@@ -8,16 +8,21 @@ datasource db {
 }
 
 model User {
-  id            String    @id
+  id            String    @id @default(cuid())
   name          String?
   email         String    @unique
   emailVerified Boolean   @default(false)
   image         String?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
-  username      String
+  username      String @unique
   accounts      Account[]
   sessions      Session[]
+  user_pets User_pets[]
+  games_as_player1 Game[] @relation("GamePlayer1")
+  games_as_player2 Game[] @relation("GamePlayer2")
+  games_won        Game[] @relation("GameWinner")
+  gameBets GameBet[]
 
   @@map("user")
 }
@@ -67,4 +72,112 @@ model Verification {
 
   @@index([identifier])
   @@map("verification")
+}
+
+
+enum PetVariant {
+  NORMAL
+  NEON
+  MEGA
+}
+
+model Pet_types {
+  id String @id @default(cuid()) @unique
+  name String
+  variant PetVariant @default(NORMAL)
+  ride      Boolean    @default(false)
+  fly       Boolean    @default(false)
+  value Int
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  pet_type User_pets[]
+
+  @@map("pet_types")
+}
+
+enum Status {
+  AVAILABLE
+  LOCKED
+}
+
+model User_pets {
+  id String @id @default(cuid())
+  user_id String 
+  pet_type_id String 
+  status Status @default(AVAILABLE)
+  locked_game_id String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  gameBets GameBet[]
+
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  pet_type Pet_types @relation(fields: [pet_type_id], references: [id], onDelete: Cascade)
+
+  @@index([user_id])
+  @@index([pet_type_id])
+  @@index([locked_game_id])
+
+  @@map("user_pets")
+}
+
+enum GameStatus {
+  WAITING
+  LOCKED
+  FLIPPED
+  SETTLED
+  CANCELLED
+}
+
+enum CoinSide {
+  HEADS
+  TAILS
+}
+
+model Game {
+  id             String     @id @default(cuid())
+
+  player1_id     String
+  player2_id     String?
+
+  status         GameStatus @default(WAITING)
+
+  player1_side   CoinSide
+  result         CoinSide?
+
+  winner_user_id String?
+
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+
+  bets GameBet[]
+
+  player1        User       @relation("GamePlayer1", fields: [player1_id], references: [id], onDelete: Cascade)
+  player2        User?      @relation("GamePlayer2", fields: [player2_id], references: [id], onDelete: Cascade)
+  winner         User?      @relation("GameWinner", fields: [winner_user_id], references: [id], onDelete: SetNull)
+
+  @@index([player1_id])
+  @@index([player2_id])
+  @@index([winner_user_id])
+  @@map("games")
+}
+
+
+model GameBet {
+  id             String   @id @default(cuid())
+  game_id        String
+  user_id        String
+  user_pet_id    String
+  value_snapshot Int
+
+  createdAt      DateTime @default(now())
+
+  game     Game      @relation(fields: [game_id], references: [id], onDelete: Cascade)
+  user     User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user_pet User_pets @relation(fields: [user_pet_id], references: [id], onDelete: Cascade)
+
+  @@unique([game_id, user_pet_id]) // same pet can't be added twice in a game
+  @@index([game_id, user_id])
+  @@map("game_bets")
 }
