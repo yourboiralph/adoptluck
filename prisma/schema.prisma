@@ -31,8 +31,8 @@ model Session {
   id        String   @id
   expiresAt DateTime
   token     String   @unique
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
   ipAddress String?
   userAgent String?
   userId    String
@@ -67,8 +67,8 @@ model Verification {
   identifier String
   value      String
   expiresAt  DateTime
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 
   @@index([identifier])
   @@map("verification")
@@ -82,51 +82,52 @@ enum PetVariant {
 }
 
 model Pet_types {
-  id String @id @default(cuid()) @unique
-  name String
-  variant PetVariant @default(NORMAL)
+  id        String     @id @default(cuid())
+  name      String
+  variant   PetVariant @default(NORMAL)
   ride      Boolean    @default(false)
   fly       Boolean    @default(false)
-  value Int
-  createdAt             DateTime  @default(now())
-  updatedAt             DateTime  @updatedAt
+  image String?
+  value     Int
 
-  pet_type User_pets[]
+  pets      User_pets[]
 
+  @@unique([name, variant, ride, fly])
   @@map("pet_types")
 }
 
-enum Status {
+
+enum PetStatus {
   AVAILABLE
   LOCKED
 }
 
 model User_pets {
-  id String @id @default(cuid())
-  user_id String 
-  pet_type_id String 
-  status Status @default(AVAILABLE)
+  id             String    @id @default(cuid())
+  user_id        String
+  pet_type_id    String
+
+  status         PetStatus @default(AVAILABLE)
   locked_game_id String?
-  createdAt             DateTime  @default(now())
-  updatedAt             DateTime  @updatedAt
 
-  gameBets GameBet[]
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
 
-  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  pet_type Pet_types @relation(fields: [pet_type_id], references: [id], onDelete: Cascade)
+  user           User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  pet_type       Pet_types @relation(fields: [pet_type_id], references: [id], onDelete: Restrict)
+
+  gameBets       GameBet[]
 
   @@index([user_id])
-  @@index([pet_type_id])
+  @@index([status])
   @@index([locked_game_id])
-
   @@map("user_pets")
 }
 
+
 enum GameStatus {
-  WAITING
-  LOCKED
-  FLIPPED
-  SETTLED
+  WAITING   // created by p1, waiting for p2
+  SETTLED   // finished & pets transferred
   CANCELLED
 }
 
@@ -145,23 +146,23 @@ model Game {
 
   player1_side   CoinSide
   result         CoinSide?
-
   winner_user_id String?
 
-  createdAt      DateTime   @default(now())
-  updatedAt      DateTime   @updatedAt
-
-  bets GameBet[]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 
   player1        User       @relation("GamePlayer1", fields: [player1_id], references: [id], onDelete: Cascade)
   player2        User?      @relation("GamePlayer2", fields: [player2_id], references: [id], onDelete: Cascade)
   winner         User?      @relation("GameWinner", fields: [winner_user_id], references: [id], onDelete: SetNull)
 
+  bets           GameBet[]
+
   @@index([player1_id])
   @@index([player2_id])
-  @@index([winner_user_id])
+  @@index([status])
   @@map("games")
 }
+
 
 
 model GameBet {
@@ -171,13 +172,15 @@ model GameBet {
   user_pet_id    String
   value_snapshot Int
 
-  createdAt      DateTime @default(now())
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 
   game     Game      @relation(fields: [game_id], references: [id], onDelete: Cascade)
   user     User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
   user_pet User_pets @relation(fields: [user_pet_id], references: [id], onDelete: Cascade)
 
-  @@unique([game_id, user_pet_id]) // same pet can't be added twice in a game
+  @@unique([game_id, user_pet_id])
   @@index([game_id, user_id])
   @@map("game_bets")
 }
+

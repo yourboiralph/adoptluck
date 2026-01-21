@@ -1,18 +1,18 @@
-import { getSession } from "@/lib/auth/auth-actions";
+"use client"
+import { useState } from "react";
 import { Button } from "./ui/button";
-import { redirect } from "next/navigation";
+import OwnedPetsModal from "./owned-pets-modal";
 
 
 
-export default async function PlayButton() {
-    const session = await getSession()
-    if (!session){
-        redirect('/register')
-    }
+export default function PlayButton() {
+    const [isOpen, setIsOpen] = useState<boolean>(false)
     return (
         <div className="w-full flex items-center justify-between my-4">
-            <p>Hi, {session?.user.username}!</p>
-            <Button variant={"default"} className="px-20 py-6">Create Lobby</Button>
+            <Button variant={"default"} className="px-20 py-6" onClick={() => {setIsOpen(true)
+                console.log("asd")}} >Create Lobby</Button>
+
+            <OwnedPetsModal isOpen={isOpen} onClose={() => setIsOpen(false)} />
         </div>
     )
 }

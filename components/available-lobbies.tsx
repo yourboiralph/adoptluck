@@ -1,4 +1,11 @@
+"use client"
+
+import { useState } from "react";
 import { Button } from "./ui/button";
+import {io} from "socket.io-client"
+import OwnedPetsModal from "./owned-pets-modal";
+
+const socket = io("http://localhost:3001")
 
 const Players = [
     {
@@ -38,10 +45,15 @@ const Players = [
     }
 ];
 
+
+
+
 export default function AvailableLobbies() {
+    const [isOpen, setIsOpen] = useState<boolean>(false)
     return (
         <div className="mt-10 space-y-10">
-            {Players.map((player, key) => (
+            <div>
+                {Players.map((player, key) => (
                 <div
                     className="w-full border border-border h-30 rounded-lg flex justify-between p-4"
                     key={key}
@@ -56,6 +68,10 @@ export default function AvailableLobbies() {
                     </div>
                 </div>
             ))}
+            </div>
+
+
+            {isOpen && <OwnedPetsModal isOpen={isOpen} onClose={() => setIsOpen(false)} />}
         </div>
     );
 }
