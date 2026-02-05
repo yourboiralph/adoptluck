@@ -3,6 +3,7 @@ import BannerEvent from "@/components/banner-event";
 import MainLayout from "@/components/main-layout";
 import PlayButton from "@/components/play-button";
 import { getSession } from "@/lib/auth/auth-actions";
+import { getPets } from "@/lib/inventory/current-pets";
 import { redirect } from "next/navigation";
 
 

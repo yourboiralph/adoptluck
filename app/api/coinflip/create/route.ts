@@ -12,5 +12,9 @@ export async function POST(req: Request) {
     body.userPetIds
   );
 
+  if (!game.success){
+    return NextResponse.json({ success: false, error: game.message });
+  }
+
   return NextResponse.json({ success: true, game });
 }

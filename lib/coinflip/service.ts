@@ -25,7 +25,7 @@ export async function createGameWithPets(player1Id: string, side: CoinSide, user
         console.log(pets)
 
         if (pets.length !== userPetIds.length) {
-            throw new Error("One or more pets are invalid, locked, or not owned by user");
+            return { success: false, message: "Some pets are locked, invalid, or not owned."}
         }
 
         // 2️⃣ Create the game
@@ -56,7 +56,7 @@ export async function createGameWithPets(player1Id: string, side: CoinSide, user
             },
         });
 
-        return game;
+        return { success: true, game };
     })
 }
 

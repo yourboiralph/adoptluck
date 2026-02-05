@@ -1,77 +1,42 @@
-"use client"
-
-import { useState } from "react";
+// import { useState } from "react";
+import Image from "next/image";
 import { Button } from "./ui/button";
-import {io} from "socket.io-client"
-import OwnedPetsModal from "./owned-pets-modal";
+import { showLobbies } from "@/lib/coinflip/lobbies";
+import JoinButton from "./join-button";
 
-const socket = io("http://localhost:3001")
-
-const Players = [
-    {
-        name: "Ralph Hernandez",
-        pet: "Cow",
-        value: 15,
-    },
-    {
-        name: "Ralph Hernandez",
-        pet: "Turtle",
-        value: 15,
-    },
-    {
-        name: "Ralph Hernandez",
-        pet: "Dog",
-        value: 15,
-    },
-    {
-        name: "Ralph Hernandez",
-        pet: "Cat",
-        value: 15,
-    },
-    {
-        name: "Ralph Hernandez",
-        pet: "Cat",
-        value: 15,
-    },
-    {
-        name: "Ralph Hernandez",
-        pet: "Cat",
-        value: 15,
-    },
-    {
-        name: "Ralph Hernandez",
-        pet: "Cat",
-        value: 15,
-    }
-];
+// const socket = io("http://localhost:3001")
 
 
 
+export default async function AvailableLobbies() {
 
-export default function AvailableLobbies() {
-    const [isOpen, setIsOpen] = useState<boolean>(false)
+    // const [lobbies, setLobbies] = useState()
+    const lobbies = await showLobbies()
+    console.log(lobbies)
     return (
         <div className="mt-10 space-y-10">
             <div>
-                {Players.map((player, key) => (
+                {lobbies.map((lobby, key) => (
                 <div
-                    className="w-full border border-border h-30 rounded-lg flex justify-between p-4"
+                    className="w-full border border-border rounded-lg flex justify-between p-4 mb-4"
                     key={key}
                 >
                     <div>
-                        <p>{player.name}</p>
-                        <p>{player.pet}</p>
-                        <p>{player.value}</p>
+                        <p>{lobby.player1.username}</p>
+                        <p>{lobby.player1_side}</p>
+                        <p>{lobby.status}</p>
+                        <div className="flex space-x-4">
+                            {lobby.pets.map((pet, key) => pet.pet_type?.image ? (
+                                <Image key={key} src={pet.pet_type?.image} width={70} height={70} alt={pet.pet_type.name}/>
+                            ) : "")}
+                        </div>
                     </div>
                     <div>
-                        <Button variant={"outline"}>Join Lobby</Button>
+                        <JoinButton />
                     </div>
                 </div>
             ))}
             </div>
-
-
-            {isOpen && <OwnedPetsModal isOpen={isOpen} onClose={() => setIsOpen(false)} />}
         </div>
     );
 }
