@@ -13,7 +13,7 @@ export default function PlayButton() {
         Create Lobby
       </Button>
 
-      <OwnedPetsModal isOpen={isOpen} setIsOpen={setIsOpen} />
+      <OwnedPetsModal isOpen={isOpen} setIsOpen={setIsOpen} mode={"CREATE"} />
     </div>
   )
 }

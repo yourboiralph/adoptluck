@@ -32,7 +32,7 @@ export default async function AvailableLobbies() {
                         </div>
                     </div>
                     <div>
-                        <JoinButton />
+                        <JoinButton gameId={lobby.id} player1Side={lobby.player1_side} />
                     </div>
                 </div>
             ))}

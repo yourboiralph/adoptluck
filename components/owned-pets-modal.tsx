@@ -5,6 +5,9 @@ import Image from "next/image"
 import { toast } from "sonner"
 import { Button } from "./ui/button"
 import { Spinner } from "./ui/spinner"
+import BetButton from "./bet-button"
+import JoinButton from "./join-button"
+import { CoinSide } from "@/app/generated/prisma/enums"
 
 
 type Pet = {
@@ -30,9 +33,15 @@ type Pet = {
 export default function OwnedPetsModal({
   isOpen,
   setIsOpen,
+  mode,
+  gameId,
+  player1Side
 }: {
   isOpen: boolean
   setIsOpen: (open: boolean) => void
+  mode: string,
+  gameId?: string,
+  player1Side?: CoinSide
 }) {
   const [pets, setPets] = useState<Pet[]>([])
   const [loading, setLoading] = useState(false)
@@ -91,12 +100,11 @@ export default function OwnedPetsModal({
         <DialogHeader>
           <DialogTitle>OWNED PETS</DialogTitle>
         </DialogHeader>
-        {loading && (
+        {loading ? (
           <div className="flex space-x-2 items-center"><Spinner data-icon="inline-start" /><p>Loading...</p></div>
-        )}
-          <div className="grid grid-cols-5 gap-4">
+        ) : (<div className="grid grid-cols-5 gap-4">
             {pets.map((pet, key) => (
-              <div key={key} className={`bg-black/70 flex items-center justfy-center flex-col p-2 rounded-lg hover:scale-110 hover:cursor-pointer border ${selectedPets.includes(pet.id) ? "border-green-500" : "border-gray"}`} onClick={() => selectPet(pet.id)}>
+              <div key={key} className={`bg-black/70 flex items-center justfy-center flex-col p-2 rounded-lg hover:scale-110 hover:cursor-pointer border ${selectedPets.includes(pet.id) ? "border-green-500" : "border-gray"}`} onClick={() => pet.status === "AVAILABLE" && selectPet(pet.id)}>
                 <Image width={70} height={70} src={pet.pet_type.image} alt={pet.pet_type.name}/>
                 <div className="flex justify-between gap-2">
                   <p>{pet.pet_type.name}</p>
@@ -106,9 +114,10 @@ export default function OwnedPetsModal({
                 <p>{pet.status === "LOCKED" ? "🔒" : "✅"}</p>
               </div>
             ))}
-          </div>
+          </div>)}
+          
           <div className="flex items-end justify-end">
-            <Button variant={"outline"} className="cursor-pointer px-10">Bet</Button>
+            <BetButton mode={mode} selectedPets={selectedPets} setSelectedPets={setSelectedPets} setIsOpen={setIsOpen} gameId={gameId} player1Side={player1Side} />
           </div>
       </DialogContent>
     </Dialog>

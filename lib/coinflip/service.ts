@@ -75,7 +75,7 @@ export async function joinGameWithPets(
   userPetIds: string[],
   tolerancePct = 0.10
 ){
-    if (!userPetIds.length) throw new Error("You must bet at least one pet");
+    if (!userPetIds.length) return { success: false, message: "Must bet atleast 1 pet."};
 
     return await prisma.$transaction(async (tx) => {
         const game = await tx.game.findUnique({
@@ -89,10 +89,10 @@ export async function joinGameWithPets(
             }
         })
 
-        if (!game) throw new Error("GAME_NOT_FOUND");
-        if (game.status !== GameStatus.WAITING) throw new Error("GAME_NOT_JOINABLE");
-        if (game.player2_id) throw new Error("GAME_ALREADY_HAS_PLAYER2");
-        if (game.player1_id === player2Id) throw new Error("CANNOT_JOIN_OWN_GAME");
+        if (!game) return { success: false, message: "GAME NOT FOUND"};
+        if (game.status !== GameStatus.WAITING) return { success: false, message: "GAME NOT JOINABLE"};
+        if (game.player2_id) return { success: false, message: "GAME ALREADY HAS PLAYER 2"};
+        if (game.player1_id === player2Id) return { success: false, message: "CANNOT JOIN OWN GAME"};
 
 
         // 2) Get Player 1 total from existing bets
@@ -101,7 +101,7 @@ export async function joinGameWithPets(
             select: { value_snapshot: true },
         });
 
-        if (!p1Bets.length) throw new Error("PLAYER1_HAS_NO_BETS");
+        if (!p1Bets.length) return { success: false, message: "Player 1 Has no Bets"};
 
 
         const p1Total = p1Bets.reduce((sum, b) => sum + b.value_snapshot, 0);
@@ -118,7 +118,7 @@ export async function joinGameWithPets(
         });
 
         if (p2Pets.length !== userPetIds.length) {
-            throw new Error("One or more pets are invalid, locked, or not owned by user");
+            return { success: false, message: "Some pets are locked, invalid, or not owned."};
         }
 
         const p2Total = p2Pets.reduce((sum, p) => sum + p.pet_type.value, 0);
@@ -126,9 +126,7 @@ export async function joinGameWithPets(
         // 4) Tolerance check
         const tol = withinTolerance(p1Total, p2Total, tolerancePct);
             if (!tol.ok) {
-            throw new Error(
-                `BET_OUT_OF_TOLERANCE: P1=${p1Total} P2=${p2Total} (allowed ${tol.lower}-${tol.upper})`
-            );
+            return { success: false, message: "BET IS OUT OF RANGE (TOLERANCE)"};
         }
 
         // 5) Assign player2
