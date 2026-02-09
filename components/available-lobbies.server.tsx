@@ -13,9 +13,6 @@ export default async function AvailableLobbiesServer() {
   const lobbies = await showLobbies()
 
   return (
-    <Suspense fallback={"Loading..."}>
-        <AvailableLobbies initialLobbies={lobbies} />
-        <ShowResult gameId={"cmlcolq730004tgj44euf6o8f"}/>
-    </Suspense>
+    <AvailableLobbies initialLobbies={lobbies} />
   )
 }

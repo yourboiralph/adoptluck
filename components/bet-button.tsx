@@ -1,9 +1,10 @@
 import { toast } from "sonner"
 import { Button } from "./ui/button"
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { CoinSide } from "@/app/generated/prisma/enums";
 import { Spinner } from "./ui/spinner";
 import { useRouter } from "next/navigation";
+import { socket } from "@/socket";
 
 interface BetButtonProps {
     selectedPets: string[];
@@ -20,6 +21,17 @@ export default function BetButton({ selectedPets, setSelectedPets, setIsOpen, mo
     const [loading, setLoading] = useState<boolean>(false)
     const [selectedSide, setSelectedSide] = useState<CoinSide>(player1Side == "HEADS" ? "TAILS" : "HEADS")
     const router = useRouter()
+    if (!socket.connected) socket.connect();
+
+    const joinRoomLobby = (id: string) => {
+        socket.emit("join_room_lobby", id)
+    }
+
+    useEffect(() => {
+        socket.emit("")
+    }, [socket])
+
+
 
     const createGame = async () => {
         try {
@@ -77,10 +89,13 @@ export default function BetButton({ selectedPets, setSelectedPets, setIsOpen, mo
                 return;
             }
 
+            socket.emit("refresh_lobby")
+            console.log("Joining room dataaaaa: ",data)
+            joinRoomLobby(data.game.id)
             setSelectedPets([])
             setIsOpen(false)
             toast.success("Successfully placed a bet.");
-            router.refresh()
+            
 
         } catch (error) {
             setSelectedPets([])

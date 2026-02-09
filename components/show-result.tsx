@@ -1,48 +1,104 @@
-import { CoinflipShowResult } from "@/lib/coinflip/result";
+"use client";
+
+import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import ShowResultModal from "./show-result-modal";
-import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
-import { Button } from "./ui/button";
-import CoinFlipAnimating from "@/app/coinflip-animating/page";
-import { Suspense } from "react";
 import { Spinner } from "./ui/spinner";
-import { getSession } from "@/lib/auth/auth-actions";
-import { redirect } from "next/navigation";
-import Image from "next/image";
+import { authClient } from "@/lib/auth/auth-client";
+import { CoinSide } from "@/app/generated/prisma/enums";
 
-interface ShowResultProp {
-    gameId: string
-}
+type GameData = {
+  result: CoinSide | null;
+  player1_id: string;
+  player1_side: CoinSide;
+  bets: any[];
+  status?: string;
+};
 
-export default async function ShowResult({ gameId }: ShowResultProp) {
+export default function ShowResult({ gameId }: { gameId: string }) {
+  const router = useRouter();
 
-    const result = await CoinflipShowResult(gameId)
-    const user = await getSession()
-    if (!user?.user?.id) {
-    redirect("/login"); // or return null
-    }
+  const [user, setUser] = useState<any>(null);
+  const [data, setData] = useState<GameData | null>(null);
+  const [loading, setLoading] = useState(true);
 
-    const data = await result[0]
-    console.log("resultt", result)
-    console.log("dataaa", data)
+  // 1) get session
+  useEffect(() => {
+    (async () => {
+      const session = await authClient.getSession();
 
-    const isPlayer1 = user?.user.id === data.player1_id;
+      if (!session?.data?.user?.id) {
+        router.replace("/login");
+        return;
+      }
+
+      setUser(session.data);
+    })();
+  }, [router]);
+
+  // 2) fetch result
+  useEffect(() => {
+    if (!gameId) return;
+
+    (async () => {
+      try {
+        setLoading(true);
+        // ✅ if your route is /result, use that:
+        const res = await fetch(`/api/coinflip/result`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({gameId}),
+        });
+
+        if (!res.ok) {
+          setData(null);
+          return;
+        }
+
+        const json = await res.json();
+        console.log("JSON DATA", json)
+        setData(json)
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, [gameId]);
+  
+  const derived = useMemo(() => {
+    if (!user?.user?.id || !data) return null;
+
+    const isPlayer1 = user.user.id === data.player1_id;
 
     const userSide = isPlayer1
-        ? data.player1_side
-        : data.player1_side === "HEADS"
-            ? "TAILS"
-            : "HEADS";
+      ? data.player1_side
+      : data.player1_side === "HEADS"
+        ? "TAILS"
+        : "HEADS";
 
     const opponentSide = userSide === "HEADS" ? "TAILS" : "HEADS";
 
-    const winningSide = data.result; // "HEADS" | "TAILS" | null
-
+    const winningSide = data.result;
     const userWon = winningSide === userSide;
     const opponentWon = winningSide === opponentSide;
-    return (
 
-        <Suspense fallback={<Spinner />}>
-            <ShowResultModal data={data} opponentWon={opponentWon} userWon={userWon} user={user} />
-        </Suspense>
-    )
+    return { userWon, opponentWon };
+  }, [user, data]);
+
+  if (!user) return <Spinner />;
+  if (loading && !data) return <Spinner />;
+  if (!data || !derived) return null;
+
+  return (
+    
+    <div className={`${data.result ? "block" : "hidden"}`}>
+        <ShowResultModal
+        data={data}
+        user={user}
+        userWon={derived.userWon}
+        opponentWon={derived.opponentWon}
+        />
+    </div>
+  );
 }

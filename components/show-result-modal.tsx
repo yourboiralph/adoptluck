@@ -1,9 +1,8 @@
-"use client"
-
 import CoinFlipAnimating from "@/app/coinflip-animating/page";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import Image from "next/image";
 import { CoinSide } from "@/app/generated/prisma/enums";
+import { useEffect, useState } from "react";
 
 
 interface PetType {
@@ -28,17 +27,23 @@ interface ShowResultModalProps {
     user: {
         user: {
             id: string,
-
         }
     },
     userWon: boolean,
     opponentWon: boolean
 }
-
-
-const flipSide = (side: CoinSide): CoinSide => (side === "HEADS" ? "TAILS" : "HEADS");
 export default function ShowResultModal({ data, user, userWon, opponentWon }: ShowResultModalProps) {
 
+
+    const [showAnim, setShowAnim] = useState(false);
+    useEffect(() => {
+        if(!data.result) return
+        setShowAnim(false)
+
+        const id = requestAnimationFrame(() => setShowAnim(true))
+        return () => cancelAnimationFrame(id)
+
+    }, [data?.result])
 
 
     return (
@@ -50,7 +55,17 @@ export default function ShowResultModal({ data, user, userWon, opponentWon }: Sh
                 <CardContent>
                     {data.result ? (
                         <div className="w-full flex items-center justify-center">
-                            <CoinFlipAnimating side={data.result} size={90} />
+                            {
+                                data.result ? (
+                                    showAnim ? (
+                                        <CoinFlipAnimating side={data.result} size={90} />
+                                    ) : (
+                                        <div className="h-[90px] w-[90px]" />
+                                    )
+                                ) : (
+                                    <div>Loading...</div>
+                                )
+                            }
                         </div>
                     ) : (
                         <div className="h-22.5 w-22.5">Loading...</div> // or a skeleton/loading
