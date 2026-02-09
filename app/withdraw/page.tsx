@@ -1,6 +1,8 @@
+import MainLayout from "@/components/main-layout"
 import { getSession } from "@/lib/auth/auth-actions"
-import { getCurrentPets } from "@/lib/inventory/current-pets"
+import { getPets } from "@/lib/inventory/current-pets"
 import Image from "next/image"
+import CoinFlipAnimating from "../coinflip-animating/page"
 
 
 export default async function WithdrawPage(){
@@ -11,16 +13,17 @@ export default async function WithdrawPage(){
         // not logged in
         return <div>Please log in</div>
     }
-    const pets = await getCurrentPets(session.user.id)
+    const pets = await getPets(session.user.id)
 
     console.log("pets", pets)
     return (
-        <div>
+        <MainLayout>
             {pets.map((pet, key)=> (
                 <div key={key}>
                     <Image width={70} height={70} alt={pet.pet_type?.name} src={pet.pet_type?.image ?? ""} />
                 </div>
             ))}
-        </div>
+        </MainLayout>
     )
+
 }

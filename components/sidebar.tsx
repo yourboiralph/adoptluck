@@ -6,6 +6,7 @@ import { Button } from "./ui/button";
 import { Check, CheckCircle, History, Home, MinusCircle, Play, PlusCircle } from "lucide-react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
+import { authClient } from "@/lib/auth/auth-client";
 
 
 function getNavigation(username?: string){
@@ -20,18 +21,19 @@ function getNavigation(username?: string){
 
 export function Sidebar(){
 
-    const username = ""
+    const session = authClient.useSession()
+    const username = session.data?.user.username ?? ""
     const pathname = usePathname()
     const navigation = getNavigation(username)
     return(
-        <div className="flex flex-col h-screen w-64 border-r border-border bg-background">
+        <div className="hidden lg:flex flex-col h-screen w-64 border-r border-border bg-background">
             <div className="py-4 border-b mb-10">
                 <div className="flex items-center px-4 space-x-4">
                     <Avatar className="h-10 w-10 bg-green-500 flex items-center justify-center">
                         <AvatarImage />
-                        <AvatarFallback>B</AvatarFallback>
+                        <AvatarFallback>{username.charAt(0).toUpperCase()}</AvatarFallback>
                     </Avatar>
-                    <p>Bubblegumh</p>
+                    <p>{username}</p>
                 </div>
             </div>
             <nav className="grid grid-cols-1 space-y-4 ">
