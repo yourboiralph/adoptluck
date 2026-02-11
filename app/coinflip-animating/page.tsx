@@ -70,11 +70,11 @@ return (
         transitionTimingFunction: "cubic-bezier(0.18, 0.89, 0.32, 1.2)",
       }}
     >
-      <div className="absolute inset-0 rounded-full bg-yellow-300 flex items-center justify-center font-bold [backface-visibility:hidden]">
+      <div className="absolute inset-0 rounded-full bg-yellow-300 flex items-center justify-center font-bold backface-hidden">
         HEADS
       </div>
 
-      <div className="absolute inset-0 rounded-full bg-yellow-400 flex items-center justify-center font-bold [backface-visibility:hidden] [transform:rotateX(180deg)]">
+      <div className="absolute inset-0 rounded-full bg-yellow-400 flex items-center justify-center font-bold backface-hidden transform-[rotateX(180deg)]">
         TAILS
       </div>
     </div>

@@ -61,11 +61,11 @@ export default function CoinFlip({
 
   return (
     <div className="flex items-center justify-center">
-      <div className="relative h-28 w-28 [perspective:900px]" aria-label="Coin">
+      <div className="relative h-28 w-28 perspective-[900px]" aria-label="Coin">
         <div
           className={[
             "absolute inset-0 rounded-full transition-transform will-change-transform",
-            "duration-[var(--d)] ease-out [transform-style:preserve-3d]",
+            "duration-(--d) ease-out transform-3d",
           ].join(" ")}
           style={
             {
@@ -78,17 +78,17 @@ export default function CoinFlip({
           }
         >
           {/* Heads */}
-          <div className="absolute inset-0 rounded-full bg-white shadow-lg [transform:translateZ(6px)] flex items-center justify-center font-bold text-black">
+          <div className="absolute inset-0 rounded-full bg-white shadow-lg transform-[translateZ(6px)] flex items-center justify-center font-bold text-black">
             H
           </div>
 
           {/* Tails */}
-          <div className="absolute inset-0 rounded-full bg-white shadow-lg [transform:rotateY(180deg)_translateZ(6px)] flex items-center justify-center font-bold text-black">
+          <div className="absolute inset-0 rounded-full bg-white shadow-lg transform-[rotateY(180deg)_translateZ(6px)] flex items-center justify-center font-bold text-black">
             T
           </div>
 
           {/* Coin edge */}
-          <div className="absolute inset-0 rounded-full border border-black/10 [transform:translateZ(0px)]" />
+          <div className="absolute inset-0 rounded-full border border-black/10 transform-[translateZ(0px)]" />
         </div>
       </div>
     </div>
