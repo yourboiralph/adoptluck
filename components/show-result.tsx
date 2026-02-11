@@ -21,6 +21,7 @@ export default function ShowResult({ gameId }: { gameId: string }) {
   const [user, setUser] = useState<any>(null);
   const [data, setData] = useState<GameData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isOpen, setIsOpen] = useState(true)
 
   // 1) get session
   useEffect(() => {
@@ -92,12 +93,14 @@ export default function ShowResult({ gameId }: { gameId: string }) {
 
   return (
     
-    <div className={`${data.result ? "block" : "hidden"}`}>
+    <div className={`${data.result && isOpen ? "block" : "hidden"}`}>
         <ShowResultModal
         data={data}
         user={user}
+        gameId={gameId}
         userWon={derived.userWon}
         opponentWon={derived.opponentWon}
+        setIsOpen={setIsOpen}
         />
     </div>
   );

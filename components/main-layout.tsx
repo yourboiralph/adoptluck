@@ -1,7 +1,8 @@
+
 import MobileBar from "./mobile-bar";
 import { Sidebar } from "./sidebar";
 
-export default function MainLayout({
+export default async function MainLayout({
     children,
 }: {
     children: React.ReactNode;

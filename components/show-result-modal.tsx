@@ -1,8 +1,11 @@
+"use client"
+
 import CoinFlipAnimating from "@/app/coinflip-animating/page";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import Image from "next/image";
 import { CoinSide } from "@/app/generated/prisma/enums";
 import { useEffect, useState } from "react";
+import { X } from "lucide-react";
 
 
 interface PetType {
@@ -14,8 +17,8 @@ interface UserPet {
 }
 
 interface Bet {
-  user_id: string;
-  user_pet: UserPet;
+    user_id: string;
+    user_pet: UserPet;
 }
 interface ShowResultModalProps {
     data: {
@@ -29,28 +32,35 @@ interface ShowResultModalProps {
             id: string,
         }
     },
+    gameId: string,
     userWon: boolean,
-    opponentWon: boolean
+    opponentWon: boolean,
+    setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
-export default function ShowResultModal({ data, user, userWon, opponentWon }: ShowResultModalProps) {
+export default function ShowResultModal({ data, user, gameId, userWon, opponentWon, setIsOpen }: ShowResultModalProps) {
 
 
     const [showAnim, setShowAnim] = useState(false);
     useEffect(() => {
-        if(!data.result) return
+        if (!data.result) return
         setShowAnim(false)
 
         const id = requestAnimationFrame(() => setShowAnim(true))
         return () => cancelAnimationFrame(id)
 
-    }, [data?.result])
+    }, [gameId])
 
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
-            <Card className="w-1/2">
+
+            <Card className="w-1/2 relative">
+                <div className="absolute top-0 right-0 px-4 cursor-pointer" onClick={() => setIsOpen(false)}>
+                    <X />
+                </div>
                 <CardHeader className="text-center">
                     <CardTitle>RESULT</CardTitle>
+
                 </CardHeader>
                 <CardContent>
                     {data.result ? (

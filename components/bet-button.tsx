@@ -21,16 +21,16 @@ export default function BetButton({ selectedPets, setSelectedPets, setIsOpen, mo
     const [loading, setLoading] = useState<boolean>(false)
     const [selectedSide, setSelectedSide] = useState<CoinSide>(player1Side == "HEADS" ? "TAILS" : "HEADS")
     const router = useRouter()
-    if (!socket.connected) socket.connect();
 
-    const joinRoomLobby = (id: string) => {
-        socket.emit("join_room_lobby", id)
+    const joinRoomLobby = (id: string, type: string) => {
+        if(type == "CREATE") {
+            socket.emit("join_room_lobby", id)
+        }
+        if(type == "JOIN") {
+            socket.emit("join_room_lobby", id)
+            socket.emit("show_result", id)
+        }
     }
-
-    useEffect(() => {
-        socket.emit("")
-    }, [socket])
-
 
 
     const createGame = async () => {
@@ -53,6 +53,9 @@ export default function BetButton({ selectedPets, setSelectedPets, setIsOpen, mo
                 return;
             }
 
+            socket.emit("refresh_lobby")
+            joinRoomLobby(data.game.game.id, "CREATE")
+            console.log("CREATED", data.game.game.id)
             setSelectedSide("HEADS")
             setSelectedPets([])
             setIsOpen(false)
@@ -90,8 +93,8 @@ export default function BetButton({ selectedPets, setSelectedPets, setIsOpen, mo
             }
 
             socket.emit("refresh_lobby")
-            console.log("Joining room dataaaaa: ",data)
-            joinRoomLobby(data.game.id)
+            joinRoomLobby(data.game.id, "JOIN")
+            console.log("JOINED",data.game.id)
             setSelectedPets([])
             setIsOpen(false)
             toast.success("Successfully placed a bet.");

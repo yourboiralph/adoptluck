@@ -48,30 +48,26 @@ export default function OwnedPetsModal({
   const [selectedPets, setSelectedPets] = useState<string[]>([])
   const [error, setError] = useState("")
 
-  useEffect(()=> {
-    let cancelled = false
+useEffect(() => {
+  if (!isOpen) return; // ✅ do nothing when closed
 
-    async function load() {
-      try {
-        setLoading(true)
-        setError("")
-        
-        const res = await fetch("/api/pets")
+  try {
+    const fetchPets = async () => {
+      const res = await fetch('http://localhost:3000/api/pets')
+      const data = await res.json()
 
-        const data: {pets: Pet[]} = await res.json()
-        console.log("data", data.pets)
-        setPets(data.pets)
-      } catch (error) {
-        console.log("error")
-      } finally {
-        setLoading(false)
-      }
+      setPets(data.pets)
+      console.log("FETCHED PETS:", data.pets)
     }
 
-    load();
-    
+    fetchPets()
+  } catch (error) {
+    console.error("Fetching Pets error: ", error)
+  }
 
-  }, [isOpen])
+  console.log("fetching pets")
+}, [isOpen]);
+
 
 
   const MAX = 2;

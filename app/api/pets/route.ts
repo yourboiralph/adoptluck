@@ -1,5 +1,6 @@
 import { getSession } from "@/lib/auth/auth-actions";
 import { getPets } from "@/lib/inventory/current-pets";
+import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
 
@@ -14,7 +15,14 @@ export async function GET() {
     }
 
 
-    const pets = await getPets(session.user.id)
+    const pets = await prisma.user_pets.findMany({
+        where: {
+            user_id: session.user.id
+        },
+        include: {
+            pet_type: true
+        }
+    })
 
     return NextResponse.json({
         pets
