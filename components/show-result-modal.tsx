@@ -68,7 +68,7 @@ export default function ShowResultModal({ data, user, gameId, userWon, opponentW
                             {
                                 data.result ? (
                                     showAnim ? (
-                                        <CoinFlipAnimating side={data.result} size={90} />
+                                        <CoinFlipAnimating side={data.result} size={90} gameId={gameId} />
                                     ) : (
                                         <div className="h-[90px] w-[90px]" />
                                     )

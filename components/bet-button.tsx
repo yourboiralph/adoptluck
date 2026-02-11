@@ -22,15 +22,14 @@ export default function BetButton({ selectedPets, setSelectedPets, setIsOpen, mo
     const [selectedSide, setSelectedSide] = useState<CoinSide>(player1Side == "HEADS" ? "TAILS" : "HEADS")
     const router = useRouter()
 
-    const joinRoomLobby = (id: string, type: string) => {
-        if(type == "CREATE") {
-            socket.emit("join_room_lobby", id)
+    const joinRoomLobby = (id: string, type: string, winnerSide?: CoinSide) => {
+        socket.emit("join_room_lobby", { id });
+
+        if (type === "JOIN") {
+            socket.emit("show_result", { id, winnerSide }); // server will emit animation + delayed refresh
         }
-        if(type == "JOIN") {
-            socket.emit("join_room_lobby", id)
-            socket.emit("show_result", id)
-        }
-    }
+    };
+
 
 
     const createGame = async () => {
@@ -74,41 +73,44 @@ export default function BetButton({ selectedPets, setSelectedPets, setIsOpen, mo
 
     const joinGame = async () => {
         try {
-            setLoading(true)
-            
+            setLoading(true);
+
             const res = await fetch('/api/coinflip/join', {
                 method: "POST",
-                headers: {"Content-Type" : "application/json"},
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     gameId,
                     userPetIds: selectedPets
                 })
-            })
-            
-            const data = await res.json()
+            });
+
+            const data = await res.json();
 
             if (!res.ok || !data.success) {
                 toast.error(data.message ?? "Failed to join bet");
                 return;
             }
 
-            socket.emit("refresh_lobby")
-            joinRoomLobby(data.game.id, "JOIN")
-            console.log("JOINED",data.game.id)
-            setSelectedPets([])
-            setIsOpen(false)
-            toast.success("Successfully placed a bet.");
-            
+            // ❌ REMOVE THIS:
+            // socket.emit("refresh_lobby")
 
+            // ✅ this triggers server animation event + delayed refresh
+            joinRoomLobby(data.game.id, "JOIN", data.game.result);
+
+            console.log("JOINED", data.game.id);
+            setSelectedPets([]);
+            setIsOpen(false);
+            toast.success("Successfully placed a bet.");
         } catch (error) {
-            setSelectedPets([])
-            setIsOpen(false)
+            setSelectedPets([]);
+            setIsOpen(false);
             toast.error("Something went wrong");
-            console.log(error)
+            console.log(error);
         } finally {
-            setLoading(false)
+            setLoading(false);
         }
-    }
+    };
+
 
     return (
         <div className="">

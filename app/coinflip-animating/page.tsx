@@ -8,13 +8,15 @@ type Props = {
   durationMs?: number; // default 5000
   autoPlay?: boolean;  // default true
   size: number
+  gameId: string
 };
 
 export default function CoinFlipAnimating({
   side,
   durationMs = 5000,
   autoPlay = true,
-  size
+  size,
+  gameId
 }: Props) {
   const [spinning, setSpinning] = useState(false);
   const [rotation, setRotation] = useState(0);
@@ -53,7 +55,7 @@ export default function CoinFlipAnimating({
       if (timeoutRef.current) window.clearTimeout(timeoutRef.current);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [side]); // run when side updates
+  }, [gameId]); // run when side updates
 
 return (
   <div
