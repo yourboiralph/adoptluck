@@ -10,7 +10,7 @@ import { socket } from "@/socket";
 type CoinSide = "HEADS" | "TAILS";
 
 interface Player { username: string }
-interface PetType { name: string; image?: string | null }
+interface PetType { name: string; image?: string | null; value: number }
 interface Pet { pet_type?: PetType | null }
 interface Lobby {
   id: string;
@@ -185,11 +185,14 @@ export default function AvailableLobbies() {
               key={lobby.id}
             >
               <div>
-                <p>{lobby.player1.username}</p>
-                <p>{lobby.player1_side}</p>
-                <p>{lobby.status}</p>
+                <p>Player 1: <span className="text-green-500">{lobby.player1.username}</span></p>
+                <p>Their side: <span className="text-green-500">{lobby.player1_side}</span></p>
+                <p>Game Status: <span className={`${lobby.status == "WAITING" ? "text-yellow-500" : lobby.status === "SETTLED" ? "text-green-500" : ""}`}>{lobby.status}</span></p>
 
                 <div className="flex space-x-4">
+                  <div className="font-bold mt-2">
+                    Total: {lobby.pets.reduce((sum, pet) => sum + (pet.pet_type?.value ?? 0), 0)}
+                  </div>
                   {lobby.pets.map((pet, idx) =>
                     pet.pet_type?.image ? (
                       <Image

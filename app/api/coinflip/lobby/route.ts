@@ -27,7 +27,7 @@ export async function GET() {
         user_pet: {
           select: {
             id: true,
-            pet_type: { select: { name: true, image: true } },
+            pet_type: { select: { name: true, image: true, value: true } },
           },
         },
       },
