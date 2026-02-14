@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { signUpWithEmail } from "@/lib/auth/auth-actions";
+import { signUpWithUsername } from "@/lib/auth/auth-actions";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -49,7 +49,7 @@ export default function LoginPage() {
         setError("")
 
         try {
-            await signUpWithEmail(
+            await signUpWithUsername(
                 formData.email,
                 formData.password,
                 formData.username,
@@ -77,7 +77,7 @@ export default function LoginPage() {
                     <CardContent>
                         <form onSubmit={handleSignUp}>
                             <div className="grid gap-10">
-                                <div className="space-y-4">
+                                {/* <div className="space-y-4">
                                     <Label htmlFor="email">Email</Label>
                                     <Input
                                         id="email"
@@ -88,7 +88,7 @@ export default function LoginPage() {
                                         onChange={handleFormChange}
                                         required
                                     />
-                                </div>
+                                </div> */}
                                 <div className="space-y-4">
                                     <Label htmlFor="username">Username</Label>
                                     <Input

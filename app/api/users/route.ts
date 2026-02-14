@@ -2,13 +2,11 @@ import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
 
-
 export async function GET() {
-
-    const pets = await prisma.pet_types.findMany()
+    const users = await prisma.user.findMany()
 
     return NextResponse.json({
-        pets,
+        users,
         status: 200
     })
 }

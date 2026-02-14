@@ -11,12 +11,13 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { signInWithEmail } from "@/lib/auth/auth-actions";
+import { signInWithUsername } from "@/lib/auth/auth-actions";
+import { redirect } from "next/navigation";
 import { useState } from "react";
 
 export default function LoginPage() {
     const [formData, setFormData] = useState({
-        email: "",
+        username: "",
         password: "",
     });
 
@@ -34,8 +35,8 @@ export default function LoginPage() {
         e.preventDefault()
         setIsLoading(true)
         try {
-            await signInWithEmail(
-                formData.email,
+            await signInWithUsername(
+                formData.username,
                 formData.password
             )
         } catch (error) {
@@ -56,20 +57,22 @@ export default function LoginPage() {
                             Enter your credentials to login.
                         </CardDescription>
                         <CardAction>
-                            <Button variant={"outline"}>Sign Up</Button>
+                            <Button variant={"outline"} onClick={() => {
+                                redirect('/register')
+                            }}>Sign Up</Button>
                         </CardAction>
                     </CardHeader>
                     <CardContent>
                         <form onSubmit={handleSubmit}>
                             <div className="grid gap-10">
                                 <div className="space-y-4">
-                                    <Label htmlFor="email">Email</Label>
+                                    <Label htmlFor="username">Username or Email</Label>
                                     <Input
-                                        id="email"
-                                        type="email"
-                                        name="email"
-                                        placeholder="youremail@email.com"
-                                        value={formData.email}
+                                        id="username"
+                                        type="username"
+                                        name="username"
+                                        placeholder="username or email"
+                                        value={formData.username}
                                         onChange={handleFormChange}
                                         required
                                     />

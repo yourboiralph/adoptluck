@@ -4,21 +4,21 @@ import { redirect } from "next/navigation"
 import { auth } from "./auth"
 import { headers } from "next/headers"
 
-export async function signInWithEmail(email: string, password: string){
-    const result = await auth.api.signInEmail({
+export async function signInWithUsername(username: string, password: string){
+    const result = await auth.api.signInUsername({
         body: {
-            email,
+            username,
             password
         }
     })
 
-    if (result.user){
+    if (result?.user){
         redirect("/")
     }
 }
 
 
-export async function signUpWithEmail(
+export async function signUpWithUsername(
     email: string,
     password: string,
     username: string,
@@ -26,7 +26,7 @@ export async function signUpWithEmail(
 ) {
     const result = await auth.api.signUpEmail({
         body: {
-            email,
+            email: "nullemail@gmail.com",
             name,
             password,
             username,

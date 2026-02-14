@@ -8,21 +8,22 @@ datasource db {
 }
 
 model User {
-  id            String    @id @default(cuid())
-  name          String?
-  email         String    @unique
-  emailVerified Boolean   @default(false)
-  image         String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  username      String @unique
-  accounts      Account[]
-  sessions      Session[]
-  user_pets User_pets[]
-  games_as_player1 Game[] @relation("GamePlayer1")
-  games_as_player2 Game[] @relation("GamePlayer2")
-  games_won        Game[] @relation("GameWinner")
-  gameBets GameBet[]
+  id               String      @id @default(cuid())
+  name             String?
+  email            String?     @unique
+  emailVerified    Boolean     @default(false)
+  image            String?
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+  username         String      @unique
+  displayUsername  String?
+  accounts         Account[]
+  sessions         Session[]
+  user_pets        User_pets[]
+  games_as_player1 Game[]      @relation("GamePlayer1")
+  games_as_player2 Game[]      @relation("GamePlayer2")
+  games_won        Game[]      @relation("GameWinner")
+  gameBets         GameBet[]
 
   @@map("user")
 }
@@ -31,8 +32,8 @@ model Session {
   id        String   @id
   expiresAt DateTime
   token     String   @unique
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
   ipAddress String?
   userAgent String?
   userId    String
@@ -67,13 +68,12 @@ model Verification {
   identifier String
   value      String
   expiresAt  DateTime
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
   @@index([identifier])
   @@map("verification")
 }
-
 
 enum PetVariant {
   NORMAL
@@ -82,41 +82,41 @@ enum PetVariant {
 }
 
 model Pet_types {
-  id        String     @id @default(cuid())
-  name      String
-  variant   PetVariant @default(NORMAL)
-  ride      Boolean    @default(false)
-  fly       Boolean    @default(false)
-  image String?
-  value     Int
+  id      String     @id @default(cuid())
+  name    String
+  variant PetVariant @default(NORMAL)
+  ride    Boolean    @default(false)
+  fly     Boolean    @default(false)
+  image   String?
+  value   Int
 
-  pets      User_pets[]
+  pets User_pets[]
 
   @@unique([name, variant, ride, fly])
   @@map("pet_types")
 }
 
-
 enum PetStatus {
   AVAILABLE
   LOCKED
+  ON_WITHDRAW
 }
 
 model User_pets {
-  id             String    @id @default(cuid())
-  user_id        String
-  pet_type_id    String
+  id          String @id @default(cuid())
+  user_id     String
+  pet_type_id String
 
   status         PetStatus @default(AVAILABLE)
   locked_game_id String?
 
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  user           User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  pet_type       Pet_types @relation(fields: [pet_type_id], references: [id], onDelete: Restrict)
+  user     User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  pet_type Pet_types @relation(fields: [pet_type_id], references: [id], onDelete: Restrict)
 
-  gameBets       GameBet[]
+  gameBets GameBet[]
 
   @@index([user_id])
   @@index([status])
@@ -124,10 +124,9 @@ model User_pets {
   @@map("user_pets")
 }
 
-
 enum GameStatus {
-  WAITING   // created by p1, waiting for p2
-  SETTLED   // finished & pets transferred
+  WAITING // created by p1, waiting for p2
+  SETTLED // finished & pets transferred
   CANCELLED
 }
 
@@ -137,25 +136,25 @@ enum CoinSide {
 }
 
 model Game {
-  id             String     @id @default(cuid())
+  id String @id @default(cuid())
 
-  player1_id     String
-  player2_id     String?
+  player1_id String
+  player2_id String?
 
-  status         GameStatus @default(WAITING)
+  status GameStatus @default(WAITING)
 
   player1_side   CoinSide
   result         CoinSide?
   winner_user_id String?
 
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  player1        User       @relation("GamePlayer1", fields: [player1_id], references: [id], onDelete: Cascade)
-  player2        User?      @relation("GamePlayer2", fields: [player2_id], references: [id], onDelete: Cascade)
-  winner         User?      @relation("GameWinner", fields: [winner_user_id], references: [id], onDelete: SetNull)
+  player1 User  @relation("GamePlayer1", fields: [player1_id], references: [id], onDelete: Cascade)
+  player2 User? @relation("GamePlayer2", fields: [player2_id], references: [id], onDelete: Cascade)
+  winner  User? @relation("GameWinner", fields: [winner_user_id], references: [id], onDelete: SetNull)
 
-  bets           GameBet[]
+  bets GameBet[]
 
   @@index([player1_id])
   @@index([player2_id])
@@ -163,17 +162,15 @@ model Game {
   @@map("games")
 }
 
-
-
 model GameBet {
-  id             String   @id @default(cuid())
+  id             String @id @default(cuid())
   game_id        String
   user_id        String
   user_pet_id    String
   value_snapshot Int
 
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   game     Game      @relation(fields: [game_id], references: [id], onDelete: Cascade)
   user     User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
@@ -183,4 +180,3 @@ model GameBet {
   @@index([game_id, user_id])
   @@map("game_bets")
 }
-

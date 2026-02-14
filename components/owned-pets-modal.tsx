@@ -53,7 +53,7 @@ useEffect(() => {
 
   try {
     const fetchPets = async () => {
-      const res = await fetch('http://localhost:3000/api/pets')
+      const res = await fetch('http://localhost:3000/api/user/pets')
       const data = await res.json()
 
       setPets(data.pets)
