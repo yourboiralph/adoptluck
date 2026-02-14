@@ -5,7 +5,7 @@ export default function BannerEvent() {
     <div>
       <div className="relative w-full aspect-16/5 rounded-lg overflow-hidden">
         <Image
-          src="./adoptluckbanner.png"
+          src="/adoptluckbanner.png"
           alt="Event Banner"
           fill
           className="object-cover object-center"
