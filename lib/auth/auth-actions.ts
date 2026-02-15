@@ -25,18 +25,35 @@ export async function signUpWithUsername(
 ) {
   const normalized = username.trim().toLowerCase();
 
-  const result = await auth.api.signUpEmail({
-    body: {
-      // make it UNIQUE per username
-      email: `${normalized}@adoptluck.local`,
-      name: name ?? normalized,
-      password,
-      username: normalized,
-    },
-  });
+  try {
+    const result = await auth.api.signUpEmail({
+      body: {
+        email: `${normalized}@adoptluck.local`,
+        name: name ?? normalized,
+        password,
+        username: normalized,
+      },
+    });
 
-  if (result?.user) redirect("/");
-  return result;
+    if (result?.user) redirect("/");
+
+    return result;
+  } catch (err: any) {
+    // This logs in PM2 / server logs (NOT browser console)
+    console.log("BetterAuth Error:", err);
+
+    const message =
+      err?.body?.message ||
+      err?.body?.error ||
+      err?.message ||
+      "Signup failed";
+
+    return {
+      user: null,
+      error: message,
+      statusCode: err?.statusCode ?? 400,
+    };
+  }
 }
 
 

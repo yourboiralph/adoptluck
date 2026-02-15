@@ -55,9 +55,16 @@ export default function RegisterPage() {
                 formData.name || formData.username
             );
 
+            if ((res as any)?.error) {
+                setError((res as any).error);
+                setIsLoading(false);
+                return;
+            }
+
             // if your auth returns errors instead of throwing:
             // if (res?.error) setError(res.error.message ?? "Signup failed");
         } catch (err: any) {
+            console.log(err)
             setError(err?.message ?? "Signup failed");
         } finally {
             setIsLoading(false);
@@ -142,3 +149,5 @@ export default function RegisterPage() {
         </div>
     );
 }
+
+
