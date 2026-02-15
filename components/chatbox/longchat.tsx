@@ -5,29 +5,32 @@ import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { socket } from "@/socket";
 import { toast } from "sonner";
+import { Avatar, AvatarFallback } from "../ui/avatar";
+import { AvatarImage } from "@radix-ui/react-avatar";
 
 type ChatMessage = {
     id: string;
     message: string;
     from?: string;
+    image?: string;
     createdAt: number;
 };
 
 type User = {
-  id: string;
-  createdAt: Date;
-  updatedAt: Date;
-  email: string;
-  emailVerified: boolean;
-  name: string;
-  image?: string | null;
-  username: string;
+    id: string;
+    createdAt: Date;
+    updatedAt: Date;
+    email: string;
+    emailVerified: boolean;
+    name: string;
+    image?: string | null;
+    username: string;
 };
 
 type LongChatProps = {
-  user: User;
+    user: User;
 };
-export default function LongChat({user}: LongChatProps) {
+export default function LongChat({ user }: LongChatProps) {
     const [message, setMessage] = useState<string>("");
     const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [isConnected, setIsConnected] = useState(false);
@@ -48,7 +51,7 @@ export default function LongChat({user}: LongChatProps) {
             { id: crypto.randomUUID(), message: trimmed, from: "me", createdAt: Date.now() },
         ]);
 
-        socket.emit("send_message", { message: trimmed, username: user.username });
+        socket.emit("send_message", { message: trimmed, username: user.username, image: user.image });
         setMessage("");
     };
 
@@ -69,13 +72,14 @@ export default function LongChat({user}: LongChatProps) {
     }, []);
 
     useEffect(() => {
-        const onReceive = (data: { message: string; username?: string }) => {
+        const onReceive = (data: { message: string; username?: string; image?: string }) => {
             setMessages((prev) => [
                 ...prev,
                 {
                     id: crypto.randomUUID(),
                     message: data.message,
                     from: data.username ?? "other",
+                    image: data.image ?? "",
                     createdAt: Date.now(),
                 },
             ]);
@@ -99,12 +103,21 @@ export default function LongChat({user}: LongChatProps) {
                             : "bg-blue-400 text-white mr-auto"
                             }`}
                     >
-                        <div className="block text-sm font-bold">
-                            {m.from == "me" ? "Me" : m.from}
+                        <div className="text-sm font-bold flex items-start">
+                            <Avatar className="bg-green-500 flex items-center justify-center">
+                                <AvatarImage src={m.from == "me" ? user.image ?? "" : m.image} />
+                                <AvatarFallback>{user.username.charAt(0).toUpperCase()}</AvatarFallback>
+                            </Avatar>
+                            <div>
+                                <p>
+                                    {m.from == "me" ? "Me" : m.from}
+                                </p>
+                                <div className="font-normal">
+                                    {m.message}
+                                </div>
+                            </div>
                         </div>
-                        <div>
-                            {m.message}
-                        </div>
+                        
                     </div>
                 ))}
             </div>
