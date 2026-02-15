@@ -62,7 +62,7 @@ export default function LoginPage() {
         }
     }
     return (
-        <div className="flex items-center justify-center max-w-lg mx-auto h-screen">
+        <div className="flex items-center justify-center max-w-lg mx-auto h-screen font-fredoka">
             <div className="w-full">
                 <Card>
                     <CardHeader>

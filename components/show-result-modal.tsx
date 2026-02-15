@@ -54,7 +54,7 @@ export default function ShowResultModal({ data, user, gameId, userWon, opponentW
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
 
-            <Card className="w-full mx-4 lg:mx-0 lg:w-1/2 relative bg-black">
+            <Card className="w-full mx-4 lg:mx-0 lg:w-1/2 relative">
                 <div className="absolute top-0 right-0 px-4 cursor-pointer" onClick={() => setIsOpen(false)}>
                     <X />
                 </div>
