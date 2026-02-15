@@ -39,9 +39,10 @@ export default function LoginPage() {
                 formData.username,
                 formData.password
             )
-        } catch (error) {
-            console.log(error)
-        } finally{
+        } catch (error: any) {
+            setError(error.message)
+            console.log(error.message)
+        } finally {
             setIsLoading(false)
         }
     }
@@ -64,7 +65,11 @@ export default function LoginPage() {
                     </CardHeader>
                     <CardContent>
                         <form onSubmit={handleSubmit}>
+
                             <div className="grid gap-10">
+                                {error && <div className="border border-red-700 px-2 py-1 rounded-lg bg-red-800">
+                                    {error}
+                                </div>}
                                 <div className="space-y-4">
                                     <Label htmlFor="username">Username or Email</Label>
                                     <Input

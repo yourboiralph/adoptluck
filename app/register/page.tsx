@@ -12,10 +12,10 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { signUpWithUsername } from "@/lib/auth/auth-actions";
-import { useRouter } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
 import { useState } from "react";
 
-export default function LoginPage() {
+export default function RegisterPage() {
     const [formData, setFormData] = useState({
         email: "",
         name: "",
@@ -38,29 +38,32 @@ export default function LoginPage() {
 
 
     const handleSignUp = async (e: React.FormEvent) => {
-        e.preventDefault()
+        e.preventDefault();
 
-        if(formData.password !== formData.password) {
-            setError("Password don't match")
-            return
+        if (formData.password !== formData.confirmPassword) {
+            setError("Passwords don't match");
+            return;
         }
 
-        setIsLoading(true)
-        setError("")
+        setIsLoading(true);
+        setError("");
 
         try {
-            await signUpWithUsername(
-                formData.email,
-                formData.password,
+            const res = await signUpWithUsername(
                 formData.username,
-                formData.name
-            )
-        } catch (error) {
-            console.log(error)
+                formData.password,
+                formData.name || formData.username
+            );
+
+            // if your auth returns errors instead of throwing:
+            // if (res?.error) setError(res.error.message ?? "Signup failed");
+        } catch (err: any) {
+            setError(err?.message ?? "Signup failed");
         } finally {
-            setIsLoading(false)
+            setIsLoading(false);
         }
-    }
+    };
+
     return (
         <div className="flex items-center justify-center max-w-lg mx-auto h-screen font-fredoka">
             <div className="w-full">
@@ -71,7 +74,9 @@ export default function LoginPage() {
                             Provide credentials for your account.
                         </CardDescription>
                         <CardAction>
-                            <Button variant={"outline"}>Sign In</Button>
+                            <Button variant={"outline"} onClick={() => {
+                                redirect('/login')
+                            }}>Sign In</Button>
                         </CardAction>
                     </CardHeader>
                     <CardContent>
@@ -89,17 +94,20 @@ export default function LoginPage() {
                                         required
                                     />
                                 </div> */}
+                                {error && <div className="border border-red-700 px-2 py-1 rounded-lg bg-red-800">
+                                    {error}
+                                </div>}
                                 <div className="space-y-4">
                                     <Label htmlFor="username">Username</Label>
                                     <Input
                                         id="username"
-                                        type="username"
+                                        type="text"
                                         name="username"
-                                        placeholder="yourusername1"
                                         value={formData.username}
                                         onChange={handleFormChange}
                                         required
                                     />
+
                                 </div>
                                 <div className="space-y-4">
                                     <Label htmlFor="password">Password</Label>

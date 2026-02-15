@@ -19,23 +19,24 @@ export async function signInWithUsername(username: string, password: string){
 
 
 export async function signUpWithUsername(
-    email: string,
-    password: string,
-    username: string,
-    name: string
+  username: string,
+  password: string,
+  name?: string
 ) {
-    const result = await auth.api.signUpEmail({
-        body: {
-            email: "nullemail@gmail.com",
-            name,
-            password,
-            username,
-        },
-    });
+  const normalized = username.trim().toLowerCase();
 
-    if (result.user) {
-        redirect("/");
-    }
+  const result = await auth.api.signUpEmail({
+    body: {
+      // make it UNIQUE per username
+      email: `${normalized}@adoptluck.local`,
+      name: name ?? normalized,
+      password,
+      username: normalized,
+    },
+  });
+
+  if (result?.user) redirect("/");
+  return result;
 }
 
 
