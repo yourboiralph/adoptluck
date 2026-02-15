@@ -71,7 +71,6 @@ export default function ShowResultModal({ data, user, gameId, userWon, opponentW
                                         <CoinFlipAnimating
                                             key={`${gameId}-${data.result}`}
                                             side={data.result}
-                                            size={90}
                                         />
 
                                     ) : (

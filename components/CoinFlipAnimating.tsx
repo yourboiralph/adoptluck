@@ -5,7 +5,7 @@ import { useEffect, useRef } from "react";
 
 type Props = {
   side: CoinSide;
-  size: number
+  size?: number
 };
 
 export default function CoinFlipAnimating({ side, size }: Props) {
