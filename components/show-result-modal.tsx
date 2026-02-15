@@ -1,11 +1,11 @@
 "use client"
 
-import CoinFlipAnimating from "@/app/coinflip-animating/page";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import Image from "next/image";
 import { CoinSide } from "@/app/generated/prisma/enums";
 import { useEffect, useState } from "react";
 import { X } from "lucide-react";
+import CoinFlipAnimating from "./CoinFlipAnimating";
 
 
 interface PetType {
@@ -68,7 +68,12 @@ export default function ShowResultModal({ data, user, gameId, userWon, opponentW
                             {
                                 data.result ? (
                                     showAnim ? (
-                                        <CoinFlipAnimating side={data.result} size={90} gameId={gameId} />
+                                        <CoinFlipAnimating
+                                            key={`${gameId}-${data.result}`}
+                                            side={data.result}
+                                            size={90}
+                                        />
+
                                     ) : (
                                         <div className="h-22.5 w-22.5" />
                                     )

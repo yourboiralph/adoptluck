@@ -27,24 +27,16 @@ export default function CoinFlipAnimating({
 
   const targetDeg = side === "HEADS" ? 0 : 180;
 
-  const start = () => {
-    if (spinning) return;
+const start = () => {
+  if (spinning) return;
+  setSpinning(true);
 
-    setSpinning(true);
+  setRotation((prev) => prev + baseSpins * 360 + targetDeg);
 
-    // Spin a lot then land on target (0 or 180)
-    // Add current rotation so repeated calls keep continuity.
-    const next = rotation + baseSpins * 360 + targetDeg;
+  if (timeoutRef.current) window.clearTimeout(timeoutRef.current);
+  timeoutRef.current = window.setTimeout(() => setSpinning(false), durationMs);
+};
 
-    // Trigger transition
-    setRotation(next);
-
-    // After animation completes, mark done (so you can re-trigger cleanly)
-    if (timeoutRef.current) window.clearTimeout(timeoutRef.current);
-    timeoutRef.current = window.setTimeout(() => {
-      setSpinning(false);
-    }, durationMs);
-  };
 
   // Auto-run whenever side changes (or on first render)
   useEffect(() => {
@@ -55,30 +47,65 @@ export default function CoinFlipAnimating({
       if (timeoutRef.current) window.clearTimeout(timeoutRef.current);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [gameId]); // run when side updates
+  }, [gameId, side]); // run when side updates
 
 return (
   <div
-    className="relative perspective-[1000px]"
-    style={{ width: size, height: size }}
+    className="relative"
+    style={{
+      width: size,
+      height: size,
+      perspective: "1000px",
+    }}
   >
     <div
-      className="absolute inset-0 rounded-full transform-3d transition-transform"
       style={{
+        position: "absolute",
+        inset: 0,
+        borderRadius: "9999px",
+        transformStyle: "preserve-3d",
         transform: `rotateX(${rotation}deg)`,
+        transitionProperty: "transform",
         transitionDuration: `${durationMs}ms`,
         transitionTimingFunction: "cubic-bezier(0.18, 0.89, 0.32, 1.2)",
+        willChange: "transform",
       }}
     >
-      <div className="absolute inset-0 rounded-full bg-yellow-300 flex items-center justify-center font-bold backface-hidden">
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          borderRadius: "9999px",
+          backfaceVisibility: "hidden",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          fontWeight: 700,
+        }}
+        className="bg-yellow-300"
+      >
         HEADS
       </div>
 
-      <div className="absolute inset-0 rounded-full bg-yellow-400 flex items-center justify-center font-bold backface-hidden transform-[rotateX(180deg)]">
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          borderRadius: "9999px",
+          backfaceVisibility: "hidden",
+          transform: "rotateX(180deg)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          fontWeight: 700,
+        }}
+        className="bg-yellow-400"
+      >
         TAILS
       </div>
     </div>
   </div>
 );
+
 
 }

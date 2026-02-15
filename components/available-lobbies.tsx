@@ -2,10 +2,10 @@
 
 import Image from "next/image";
 import JoinButton from "./join-button";
-import CoinFlipAnimating from "@/app/coinflip-animating/page";
 import ShowResult from "./show-result";
 import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { socket } from "@/socket";
+import CoinFlipAnimating from "./CoinFlipAnimating";
 
 type CoinSide = "HEADS" | "TAILS";
 
@@ -91,32 +91,24 @@ export default function AvailableLobbies() {
           return copy;
         });
 
-        // if no animations left, allow refresh again
-        // (do this in a microtask so state updates apply first)
-        queueMicrotask(() => {
-          const stillAnimating = Object.keys(timersRef.current).some((key) => {
-            // timer exists but might already be cleared; safe check via state is harder here
-            return false;
-          });
-          // simpler: recompute from current animatingById in next tick is messy
-          // so we just set animatingRef false when we fetch (below), BUT:
-          // we can also set it false when we believe we're done:
-          // (best effort)
-          animatingRef.current = false;
-        });
-
-        // refresh after animation for that lobby ends
+        delete timersRef.current[id]; // ✅ important
         fetchLobbies();
       }, durationMs);
     },
     [fetchLobbies]
   );
 
+  const animatingMapRef = useRef<Record<string, true>>({});
+
+  useEffect(() => {
+    animatingMapRef.current = animatingById;
+  }, [animatingById]);
+
   // ✅ refresh lobby listener (ignore while animating)
   useEffect(() => {
     const onRefresh = () => {
       // If any animation is active, ignore refresh so UI doesn't disappear early
-      if (animatingRef.current) return;
+      if (Object.keys(animatingMapRef.current).length > 0) return;
       fetchLobbies();
     };
 
@@ -214,11 +206,12 @@ export default function AvailableLobbies() {
                   {/* ✅ MULTI: show animation for this lobby if it's in the map */}
                   {animatingById[lobby.id] && (
                     <CoinFlipAnimating
+                      key={`lobby-${lobby.id}-${winnerById[lobby.id] ?? "HEADS"}`}
                       side={winnerById[lobby.id] ?? "HEADS"}
                       size={90}
-                      gameId={lobby.id}
                     />
                   )}
+
                 </div>
               </div>
             </div>
