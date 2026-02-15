@@ -1,6 +1,6 @@
 "use client";
 
-import { CoinSide } from "@/app/generated/prisma";
+import { CoinSide } from "@/app/generated/prisma/enums";
 import { useEffect, useRef } from "react";
 
 type Props = {
