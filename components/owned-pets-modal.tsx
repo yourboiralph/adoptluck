@@ -100,8 +100,8 @@ export default function OwnedPetsModal({
         {loading ? (
           <div className="flex space-x-2 items-center"><Spinner data-icon="inline-start" /><p>Loading...</p></div>
         ) : (<div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
-          {pets.map((pet, key) => (
-            <div key={key} className={`bg-black/70 flex items-center justfy-center flex-col p-2 rounded-lg hover:scale-110 hover:cursor-pointer border ${selectedPets.includes(pet.id) ? "border-green-500" : "border-gray"}`} onClick={() => pet.status === "AVAILABLE" && selectPet(pet.id)}>
+          {pets.map((pet) => (
+            <div key={pet.id} className={`bg-black/70 flex items-center justfy-center flex-col p-2 rounded-lg hover:scale-110 hover:cursor-pointer border ${selectedPets.includes(pet.id) ? "border-green-500" : "border-gray"}`} onClick={() => pet.status === "AVAILABLE" && selectPet(pet.id)}>
               <PetImage
                 size={70}
                 src={pet.pet_type.image}

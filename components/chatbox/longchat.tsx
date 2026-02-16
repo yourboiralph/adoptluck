@@ -94,11 +94,11 @@ export default function LongChat({ user }: LongChatProps) {
 
     return (
         <div className="flex flex-col h-full w-full">
-            <div className="flex-1 w-full mt-4 overflow-y-auto px-2 flex flex-col gap-2">
+            <div className="flex-1 w-full mt-4 overflow-y-auto overflow-x-hidden px-2 flex flex-col gap-2">
                 {messages.map((m) => (
                     <div
                         key={m.id}
-                        className={`px-4 py-2 rounded-lg max-w-[75%] whitespace-normal break-words ${m.from === "me"
+                        className={`px-4 py-2 rounded-lg max-w-[75%] wrap-break-word break-all ${m.from === "me"
                             ? "bg-green-500 text-white ml-auto"
                             : "bg-blue-400 text-white mr-auto"
                             }`}
