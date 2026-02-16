@@ -5,6 +5,7 @@ import values from "@/lib/json/value.json";
 
 type IncomingPet = {
   petname: string;
+  petkind: string;
   variant: PetVariant; // "NORMAL" | "NEON" | "MEGA"
   fly: boolean;
   ride: boolean;
@@ -123,6 +124,7 @@ export async function POST(req: NextRequest) {
     // ✅ clean + normalize incoming
     const cleaned: IncomingPet[] = pets.map((p) => ({
       petname: String(p.petname ?? "").trim(),
+      petkind: String(p.petkind),
       variant: String(p.variant ?? "NORMAL").toUpperCase() as PetVariant,
       fly: Boolean(p.fly),
       ride: Boolean(p.ride),
@@ -174,7 +176,7 @@ export async function POST(req: NextRequest) {
           variant: p.variant,
           fly: p.fly,
           ride: p.ride,
-          image: `https://cdn.playadopt.me/items/${encodeURIComponent(p.petname.toLowerCase())}.png`,
+          image: `https://cdn.playadopt.me/items/${encodeURIComponent(p.petkind)}.png`,
         })),
         skipDuplicates: true,
       });
