@@ -1,24 +1,27 @@
-
+// app/api/users/[username]/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import prisma from "@/lib/prisma"; // adjust if your prisma path is different
+import prisma from "@/lib/prisma";
 
 export async function GET(
   _req: NextRequest,
-  { params }: { params: { username: string } }
+  { params }: { params: Promise<{ username: string }> }
 ) {
   try {
-    const raw = params.username ?? "";
-    const username = decodeURIComponent(raw).trim().toLowerCase();
+    const { username: rawParam } = await params;
+
+    const username = decodeURIComponent(rawParam ?? "")
+      .trim()
+      .toLowerCase();
 
     if (!username) {
-      return NextResponse.json({ error: "Username is required" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Username is required" },
+        { status: 400 }
+      );
     }
 
     const user = await prisma.user.findFirst({
-      where: {
-        username: username, // if you store usernames normalized
-        // OR: { equals: username, mode: "insensitive" }  // if you're on Postgres + Prisma supports it for your field
-      },
+      where: { username },
       select: {
         id: true,
         username: true,
@@ -36,6 +39,9 @@ export async function GET(
     return NextResponse.json({ user }, { status: 200 });
   } catch (err) {
     console.error("GET /api/users/[username] error:", err);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
   }
 }
