@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog"
 import Image from "next/image"
+import PetImage from "./pet-image";
 import { toast } from "sonner"
 import { Button } from "./ui/button"
 import { Spinner } from "./ui/spinner"
@@ -48,25 +49,25 @@ export default function OwnedPetsModal({
   const [selectedPets, setSelectedPets] = useState<string[]>([])
   const [error, setError] = useState("")
 
-useEffect(() => {
-  if (!isOpen) return; // ✅ do nothing when closed
+  useEffect(() => {
+    if (!isOpen) return; // ✅ do nothing when closed
 
-  try {
-    const fetchPets = async () => {
-      const res = await fetch('/api/pets/user')
-      const data = await res.json()
+    try {
+      const fetchPets = async () => {
+        const res = await fetch('/api/pets/user')
+        const data = await res.json()
 
-      setPets(data.pets)
-      console.log("FETCHED PETS:", data.pets)
+        setPets(data.pets)
+        console.log("FETCHED PETS:", data.pets)
+      }
+
+      fetchPets()
+    } catch (error) {
+      console.error("Fetching Pets error: ", error)
     }
 
-    fetchPets()
-  } catch (error) {
-    console.error("Fetching Pets error: ", error)
-  }
-
-  console.log("fetching pets")
-}, [isOpen]);
+    console.log("fetching pets")
+  }, [isOpen]);
 
 
 
@@ -99,22 +100,26 @@ useEffect(() => {
         {loading ? (
           <div className="flex space-x-2 items-center"><Spinner data-icon="inline-start" /><p>Loading...</p></div>
         ) : (<div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
-            {pets.map((pet, key) => (
-              <div key={key} className={`bg-black/70 flex items-center justfy-center flex-col p-2 rounded-lg hover:scale-110 hover:cursor-pointer border ${selectedPets.includes(pet.id) ? "border-green-500" : "border-gray"}`} onClick={() => pet.status === "AVAILABLE" && selectPet(pet.id)}>
-                <Image width={70} height={70} src={pet.pet_type.image} alt={pet.pet_type.name}/>
-                <div className="flex justify-between gap-2">
-                  <p>{pet.pet_type.name}</p>
-                  <p>{pet.pet_type.value}</p>
-                  
-                </div>
-                <p>{pet.status === "LOCKED" ? "🔒" : "✅"}</p>
+          {pets.map((pet, key) => (
+            <div key={key} className={`bg-black/70 flex items-center justfy-center flex-col p-2 rounded-lg hover:scale-110 hover:cursor-pointer border ${selectedPets.includes(pet.id) ? "border-green-500" : "border-gray"}`} onClick={() => pet.status === "AVAILABLE" && selectPet(pet.id)}>
+              <PetImage
+                size={70}
+                src={pet.pet_type.image}
+                alt={pet.pet_type.name}
+              />
+
+              <div className="flex justify-between gap-2">
+                <p>{pet.pet_type.value}</p>
+
               </div>
-            ))}
-          </div>)}
-          
-          <div className="flex items-end justify-end">
-            <BetButton mode={mode} selectedPets={selectedPets} setSelectedPets={setSelectedPets} setIsOpen={setIsOpen} gameId={gameId} player1Side={player1Side} />
-          </div>
+              <p>{pet.status === "LOCKED" ? "🔒" : pet.pet_type.value == 0 ? "❌ No Value" : "✅"}</p>
+            </div>
+          ))}
+        </div>)}
+
+        <div className="flex items-end justify-end">
+          <BetButton mode={mode} selectedPets={selectedPets} setSelectedPets={setSelectedPets} setIsOpen={setIsOpen} gameId={gameId} player1Side={player1Side} />
+        </div>
       </DialogContent>
     </Dialog>
   )
