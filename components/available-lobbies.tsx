@@ -26,6 +26,10 @@ type LobbyShowResultPayload = {
   durationMs?: number;
 };
 
+type DataMappedProp = {
+  id: string
+}
+
 export default function AvailableLobbies() {
   const [lobbies, setLobbies] = useState<Lobby[]>([]);
 
@@ -42,6 +46,42 @@ export default function AvailableLobbies() {
   // refs for timers & "are we animating right now?"
   const timersRef = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
   const animatingRef = useRef(false);
+
+  const fetchOwnedLobbies = async () => {
+    try {
+      const res = await fetch("/api/coinflip/lobby/owned", {
+        method: "GET",
+        credentials: "include", // ensures cookies are sent
+        cache: "no-store",
+      });
+
+      if (!res.ok) {
+        // Try to read server message
+        let msg = "Failed to fetch owned lobbies";
+        try {
+          const err = await res.json();
+          msg = err?.error ?? msg;
+        } catch {}
+        console.log("HTTP", res.status, msg);
+        return;
+      }
+
+      const data: DataMappedProp[] = await res.json();
+      console.log(data);
+
+      data.forEach((lobby) => {
+        // pick the correct key that your socket server expects
+        socket.emit("join_room_lobby", { id: lobby.id });
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+
+  useEffect(() => {
+    fetchOwnedLobbies()
+  }, [])
 
   const fetchLobbies = useCallback(async () => {
     try {
