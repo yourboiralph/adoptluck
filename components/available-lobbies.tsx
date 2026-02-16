@@ -183,7 +183,11 @@ export default function AvailableLobbies() {
 
                 <div className="flex space-x-4">
                   <div className="font-bold mt-2">
-                    Total: {lobby.pets.reduce((sum, pet) => sum + (pet.pet_type?.value ?? 0), 0)}
+                    Total: {lobby.pets.reduce(
+                      (sum, pet) => sum + Number(pet.pet_type?.value ?? 0),
+                      0
+                    ).toFixed(2)}
+
                   </div>
                   {lobby.pets.map((pet, idx) =>
                     pet.pet_type?.image ? (
