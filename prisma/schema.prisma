@@ -88,7 +88,7 @@ model Pet_types {
   ride    Boolean    @default(false)
   fly     Boolean    @default(false)
   image   String?
-  value   Decimal  @db.Decimal(10, 4)
+  value   Decimal    @db.Decimal(10, 4)
 
   pets User_pets[]
 
@@ -163,7 +163,7 @@ model Game {
 }
 
 model GameBet {
-  id             String @id @default(cuid())
+  id             String  @id @default(cuid())
   game_id        String
   user_id        String
   user_pet_id    String
