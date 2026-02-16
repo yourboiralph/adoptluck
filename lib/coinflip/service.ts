@@ -1,7 +1,7 @@
 import { CoinSide, PetStatus, GameStatus } from "@/app/generated/prisma/enums";
 import prisma from "../prisma";
 import crypto from "node:crypto";
-import { Prisma } from "@/app/generated/prisma";
+import { Prisma } from "@/app/generated/prisma/client";
 
 
 
