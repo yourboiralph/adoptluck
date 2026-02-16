@@ -104,7 +104,7 @@ export async function joinGameWithPets(
         if (!p1Bets.length) return { success: false, message: "Player 1 Has no Bets"};
 
 
-        const p1Total = p1Bets.reduce((sum, b) => sum + b.value_snapshot, 0);
+        const p1Total = p1Bets.reduce((sum, b) => Number(b.value_snapshot), 0);
 
 
         // 3) Fetch player2 pets and validate ownership + availability
@@ -121,7 +121,7 @@ export async function joinGameWithPets(
             return { success: false, message: "Some pets are locked, invalid, or not owned."};
         }
 
-        const p2Total = p2Pets.reduce((sum, p) => sum + p.pet_type.value, 0);
+        const p2Total = p2Pets.reduce((sum, p) => sum + Number(p.pet_type.value), 0);
 
         // 4) Tolerance check
         const tol = withinTolerance(p1Total, p2Total, tolerancePct);
