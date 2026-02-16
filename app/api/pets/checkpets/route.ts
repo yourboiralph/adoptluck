@@ -86,6 +86,7 @@ export async function POST(req: NextRequest) {
                     variant: p.variant,
                     fly: p.fly,
                     ride: p.ride,
+                    image: `https://cdn.playadopt.me/items/${p.petname.toLowerCase()}.png`,
                 })),
                 skipDuplicates: true,
             });
