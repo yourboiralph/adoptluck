@@ -1,14 +1,8 @@
-import { getSession } from "@/lib/auth/auth-actions";
 import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
   try {
-    const session = await getSession();
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: "No user logged in." }, { status: 401 });
-    }
-
     const body = await req.json();
 
     const name = typeof body?.name === "string" ? body.name.trim() : "";

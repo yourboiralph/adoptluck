@@ -4,29 +4,34 @@ import { NextResponse } from "next/server";
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const userId = body?.userId as string | undefined;
-    const petTypeId = body?.petTypeId as string | undefined;
 
-    if (!userId || !petTypeId) {
+    const userId = body?.userId as string | undefined;
+    const petTypeIds = body?.petTypeIds as string[] | undefined;
+
+    if (!userId || !Array.isArray(petTypeIds) || petTypeIds.length === 0) {
       return NextResponse.json(
-        { message: "userId and petTypeId are required" },
+        { message: "userId and petTypeIds[] are required" },
         { status: 400 }
       );
     }
 
-    // optional: avoid duplicates if you want
-    // const existing = await prisma.user_pets.findFirst({ where: { user_id: userId, pet_type_id: petTypeId } });
-    // if (existing) return NextResponse.json({ message: "Already assigned" }, { status: 409 });
-
-    const userPets = await prisma.user_pets.create({
-      data: {
+    // no dedupe, no skipDuplicates
+    const result = await prisma.user_pets.createMany({
+      data: petTypeIds.map((petTypeId) => ({
         user_id: userId,
         pet_type_id: petTypeId,
-      },
+      })),
     });
 
-    return NextResponse.json({ userPets }, { status: 201 });
-  } catch (e) {
+    return NextResponse.json(
+      {
+        message: "Pets assigned successfully",
+        insertedCount: result.count,
+      },
+      { status: 201 }
+    );
+  } catch (error) {
+    console.error(error);
     return NextResponse.json(
       { message: "Failed to create user_pets" },
       { status: 422 }

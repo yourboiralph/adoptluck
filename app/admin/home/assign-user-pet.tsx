@@ -30,7 +30,11 @@ export default function AssignUserPet({
   const [petQuery, setPetQuery] = useState("");
 
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
-  const [selectedPet, setSelectedPet] = useState<PetType | null>(null);
+
+  // multi-select pets
+  const [selectedPetIds, setSelectedPetIds] = useState<string[]>([]);
+  // how many duplicates to add for each selected pet id
+  const [petQtyById, setPetQtyById] = useState<Record<string, number>>({});
 
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
@@ -57,11 +61,42 @@ export default function AssignUserPet({
       .slice(0, 30);
   }, [pets, petQuery]);
 
+  const selectedPets = useMemo(() => {
+    const set = new Set(selectedPetIds);
+    return pets.filter((p) => set.has(p.id));
+  }, [pets, selectedPetIds]);
+
+  function togglePet(petId: string) {
+    setSelectedPetIds((prev) => {
+      const exists = prev.includes(petId);
+      const next = exists ? prev.filter((id) => id !== petId) : [...prev, petId];
+
+      // set default qty = 1 on first select
+      if (!exists) {
+        setPetQtyById((q) => ({ ...q, [petId]: q[petId] ?? 1 }));
+      }
+
+      return next;
+    });
+  }
+
+  function setQty(petId: string, qty: number) {
+    const safe = Number.isFinite(qty) ? Math.max(1, Math.min(999, qty)) : 1;
+    setPetQtyById((prev) => ({ ...prev, [petId]: safe }));
+  }
+
   async function assign() {
     setMsg(null);
 
     if (!selectedUser?.id) return setMsg("Select a user first.");
-    if (!selectedPet?.id) return setMsg("Select a pet first.");
+    if (selectedPetIds.length === 0) return setMsg("Select at least 1 pet.");
+
+    // Expand duplicates using qty (allows duplicates intentionally)
+    const petTypeIds: string[] = [];
+    for (const petId of selectedPetIds) {
+      const qty = petQtyById[petId] ?? 1;
+      for (let i = 0; i < qty; i++) petTypeIds.push(petId);
+    }
 
     setLoading(true);
     try {
@@ -70,18 +105,24 @@ export default function AssignUserPet({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           userId: selectedUser.id,
-          petTypeId: selectedPet.id,
+          petTypeIds, // ✅ matches the bulk API
         }),
       });
 
       const data = await res.json();
 
       if (!res.ok) {
-        setMsg(data?.message ?? "Failed to assign pet.");
+        setMsg(data?.message ?? "Failed to assign pets.");
         return;
       }
 
-      setMsg(`✅ Assigned ${selectedPet.name} to ${selectedUser.email ?? selectedUser.username ?? selectedUser.id}`);
+      const label = selectedUser.email ?? selectedUser.username ?? selectedUser.id;
+      setMsg(`✅ Assigned ${petTypeIds.length} pet(s) to ${label}`);
+
+      // optional reset after success
+      setSelectedPetIds([]);
+      setPetQtyById({});
+      // keep selectedUser selected (usually nice for admins)
     } catch (e) {
       setMsg("Network error.");
     } finally {
@@ -144,7 +185,7 @@ export default function AssignUserPet({
       {/* PETS */}
       <Card>
         <CardHeader>
-          <CardTitle>Select Pet</CardTitle>
+          <CardTitle>Select Pet(s)</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
           <Input
@@ -158,12 +199,12 @@ export default function AssignUserPet({
               <div className="p-3 text-sm text-muted-foreground">No pets found.</div>
             ) : (
               filteredPets.map((p) => {
-                const active = selectedPet?.id === p.id;
+                const active = selectedPetIds.includes(p.id);
                 return (
                   <button
                     key={p.id}
                     type="button"
-                    onClick={() => setSelectedPet(p)}
+                    onClick={() => togglePet(p.id)}
                     className={`w-full text-left px-3 py-2 border-b last:border-b-0 hover:bg-accent ${
                       active ? "bg-accent" : ""
                     }`}
@@ -183,18 +224,44 @@ export default function AssignUserPet({
             )}
           </div>
 
-          {selectedPet && (
-            <div className="text-sm">
-              <span className="text-muted-foreground">Selected:</span>{" "}
-              <span className="font-medium">
-                {selectedPet.name} {selectedPet.variant ? `(${selectedPet.variant})` : ""}
-              </span>
+          {/* Selected list + qty */}
+          {selectedPets.length > 0 ? (
+            <div className="space-y-2 border rounded-md p-3">
+              <div className="text-sm font-medium">Selected pets</div>
+              <div className="space-y-2">
+                {selectedPets.map((p) => (
+                  <div key={p.id} className="flex items-center justify-between gap-3">
+                    <div className="text-sm">
+                      {p.name} {p.variant ? `(${p.variant})` : ""}
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-muted-foreground">qty</span>
+                      <Input
+                        type="number"
+                        min={1}
+                        max={999}
+                        value={petQtyById[p.id] ?? 1}
+                        onChange={(e) => setQty(p.id, Number(e.target.value))}
+                        className="w-20"
+                      />
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        onClick={() => togglePet(p.id)}
+                      >
+                        Remove
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
-          )}
+          ) : null}
 
           <div className="pt-2 flex items-center gap-3">
             <Button onClick={assign} disabled={loading}>
-              {loading ? "Assigning..." : "Assign Pet"}
+              {loading ? "Assigning..." : "Assign Pet(s)"}
             </Button>
             {msg ? <div className="text-sm">{msg}</div> : null}
           </div>
