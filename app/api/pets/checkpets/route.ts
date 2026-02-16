@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { PetVariant } from "@/app/generated/prisma";
+import { PetVariant } from "@/app/generated/prisma/enums";
 
 type IncomingPet = {
   petname: string;
