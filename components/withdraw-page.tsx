@@ -114,7 +114,7 @@ export default function WithdrawPageComponent() {
                             </div>
                         ) : (
                             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
-                                {pets.map((pet) => (
+                                {pets.filter((pet) => pet.status !== "WITHDRAWED").map((pet) => (
                                     <div
                                         key={pet.id}
                                         className={`bg-black/70 flex items-center justify-center flex-col p-2 rounded-lg hover:scale-110 hover:cursor-pointer border ${selectedPets.includes(pet.id)

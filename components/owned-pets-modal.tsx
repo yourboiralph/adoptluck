@@ -100,7 +100,7 @@ export default function OwnedPetsModal({
         {loading ? (
           <div className="flex space-x-2 items-center"><Spinner data-icon="inline-start" /><p>Loading...</p></div>
         ) : (<div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
-          {pets.map((pet) => (
+          {pets.filter((pet) => pet.status !== "WITHDRAWED").map((pet) => (
             <div key={pet.id} className={`bg-black/70 flex items-center justfy-center flex-col p-2 rounded-lg hover:scale-110 hover:cursor-pointer border ${selectedPets.includes(pet.id) ? "border-green-500" : "border-gray"}`} onClick={() => pet.status === "AVAILABLE" && selectPet(pet.id)}>
               <PetImage
                 size={70}
@@ -112,7 +112,7 @@ export default function OwnedPetsModal({
                 <p>{pet.pet_type.value}</p>
 
               </div>
-              <p>{pet.status === "LOCKED" ? "🔒" : pet.pet_type.value == 0 ? "❌ No Value" : "✅"}</p>
+              <p>{pet.status === "LOCKED" ? "🔒" : pet.pet_type.value === 0 ? "❌ No Value" : pet.status === "ON_WITHDRAW" ? "🕒Withdraw" : "✅"}</p>
             </div>
           ))}
         </div>)}
