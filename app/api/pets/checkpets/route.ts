@@ -173,6 +173,7 @@ export async function POST(req: NextRequest) {
         data: missing.map((p) => ({
           name: p.petname.toLowerCase(),
           value: getValueForPet(p), // ✅ from value.json (number OR string supported)
+          petkind: p.petkind,
           variant: p.variant,
           fly: p.fly,
           ride: p.ride,
