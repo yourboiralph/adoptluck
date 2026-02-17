@@ -101,6 +101,7 @@ enum PetStatus {
   AVAILABLE
   LOCKED
   ON_WITHDRAW
+  WITHDRAWED
 }
 
 model User_pets {

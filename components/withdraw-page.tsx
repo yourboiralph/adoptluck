@@ -7,6 +7,8 @@ import { Spinner } from "./ui/spinner";
 import PetImage from "./pet-image";
 import { Button } from "./ui/button";
 import Link from "next/link";
+import prisma from "@/lib/prisma";
+import { useRouter } from "next/navigation";
 
 
 export default function WithdrawPageComponent() {
@@ -34,24 +36,25 @@ export default function WithdrawPageComponent() {
     const [loading, setLoading] = useState(false)
     const [selectedPets, setSelectedPets] = useState<string[]>([])
     const [error, setError] = useState("")
-    useEffect(() => {
-
+    const fetchPets = async () => {
+        setLoading(true);
         try {
-            const fetchPets = async () => {
-                const res = await fetch('/api/pets/user')
-                const data = await res.json()
-
-                setPets(data.pets)
-                console.log("FETCHED PETS:", data.pets)
-            }
-
-            fetchPets()
-        } catch (error) {
-            console.error("Fetching Pets error: ", error)
+            const res = await fetch("/api/pets/user", { cache: "no-store" });
+            const data = await res.json();
+            setPets(data.pets);
+        } finally {
+            setLoading(false);
         }
+    };
 
-        console.log("fetching pets")
+    useEffect(() => {
+        fetchPets();
     }, []);
+
+
+    useEffect(() => {
+        console.log(selectedPets)
+    }, [selectedPets])
 
     const MAX = 5;
 
@@ -70,6 +73,33 @@ export default function WithdrawPageComponent() {
             return [...prev, id]
         })
     }
+
+    const router = useRouter()
+    const handleWithdraw = async () => {
+        try {
+            const res = await fetch("/api/pets/checkwithdrawstatus", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ selectedPets }), // 👈 also fix payload name
+            });
+
+            const data = await res.json();
+
+            if (!res.ok) {
+                toast.error(data?.error ?? "Failed");
+                return;
+            }
+
+            toast.success("Queued for withdraw!");
+            setSelectedPets([]);
+            await fetchPets();          // ✅ this updates UI
+            // router.refresh(); // optional, not needed for this UI
+        } catch (e) {
+            console.error(e);
+            toast.error("Error");
+        }
+    };
+
     return (
         <div className="mx-auto max-w-screen-2xl h-full p-4 ">
             <div className="grid h-full gap-6 grid-cols-1 lg:grid-cols-2">
@@ -102,11 +132,7 @@ export default function WithdrawPageComponent() {
                                         />
                                         <p>{pet.pet_type.value}</p>
                                         <p>
-                                            {pet.status === "LOCKED"
-                                                ? "🔒"
-                                                : pet.pet_type.value === 0
-                                                    ? "❌ No Value"
-                                                    : "✅"}
+                                            {pet.status === "LOCKED" ? "🔒" : pet.pet_type.value === 0 ? "❌ No Value" : pet.status === "ON_WITHDRAW" ? "🕒Withdraw" : "✅"}
                                         </p>
                                     </div>
                                 ))}
@@ -116,7 +142,9 @@ export default function WithdrawPageComponent() {
 
                     {/* Sticky bottom button (inside panel) */}
                     <div className="absolute bottom-0 left-0 right-0 bg-background border-t border-accent p-4 rounded-b-2xl">
-                        <Button className="w-full">Withdraw</Button>
+                        <Button className="w-full" onClick={() => {
+                            selectedPets.length > 0 ? handleWithdraw() : toast.error("Please select a pet to withdraw.")
+                        }}>Withdraw</Button>
                     </div>
                 </div>
 
@@ -125,7 +153,7 @@ export default function WithdrawPageComponent() {
                     <div className="bg-red-800 px-2 rounded-lg py-2 border border-red-600 mb-4">
                         <p className="text-red-100"> Watch out for fake bots! They will impersonate the bot. Make sure to check the correct username while trading.</p>
                     </div>
-                    
+
                     <div className="block mb-4">
                         <img
                             src="/bubblerice1.png"
