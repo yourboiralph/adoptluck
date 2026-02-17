@@ -26,11 +26,7 @@ export async function POST(req: NextRequest) {
                 status: "ON_WITHDRAW"
             },
             include: {
-                pet_type: {
-                    select: {
-                        petkind: true
-                    }
-                }
+                pet_type: true
             }
         })
 
