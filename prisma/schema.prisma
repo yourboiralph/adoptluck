@@ -84,6 +84,7 @@ enum PetVariant {
 model Pet_types {
   id      String     @id @default(cuid())
   name    String
+  petkind String?
   variant PetVariant @default(NORMAL)
   ride    Boolean    @default(false)
   fly     Boolean    @default(false)
