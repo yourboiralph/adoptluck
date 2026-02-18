@@ -94,7 +94,7 @@ export default function OwnedPetsModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogContent className="max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-4xl w-full max-h-[90vh] overflow-y-auto supports-backdrop-filter:bg-background/95">
         <DialogHeader>
           <DialogTitle>OWNED PETS</DialogTitle>
         </DialogHeader>

@@ -7,6 +7,7 @@ import { socket } from "@/socket";
 import { toast } from "sonner";
 import { Avatar, AvatarFallback } from "../ui/avatar";
 import { AvatarImage } from "@radix-ui/react-avatar";
+import { Send } from "lucide-react";
 
 type ChatMessage = {
     id: string;
@@ -122,7 +123,7 @@ export default function LongChat({ user }: LongChatProps) {
                 ))}
             </div>
 
-            <div className="w-full bg-white/20 backdrop-blur-lg p-4">
+            <div className="w-full backdrop-blur-lg p-4">
                 <div className="grid grid-cols-3 w-full gap-2">
                     <Input
                         value={message}
@@ -130,8 +131,9 @@ export default function LongChat({ user }: LongChatProps) {
                         className="col-span-2"
                         onChange={(e) => setMessage(e.target.value)}
                     />
-                    <Button className="bg-white" onClick={sendMessage}>
+                    <Button className="bg-green-500 hover:bg-green-400 text-gray-900" onClick={sendMessage}>
                         Send
+                        <Send />
                     </Button>
                 </div>
             </div>

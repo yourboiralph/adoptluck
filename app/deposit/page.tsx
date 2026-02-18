@@ -10,8 +10,8 @@ export default function DepositPage() {
     const botLink = "https://www.roblox.com/share?code=ba96d96ce77a504091d7a40160b67118&type=Server"
     return (
         <MainLayout >
-            <div className="flex items-center justify-center h-full">
-                <Card className="relative mx-auto w-full max-w-2xl pt-0">
+            <div className="flex items-center justify-center h-screen">
+                <Card className="relative mx-auto w-full max-w-2xl pt-2 px-2">
                     <img
                         src="/bubblerice1.png"
                         alt="Event cover"

@@ -117,13 +117,13 @@ export default function BetButton({ selectedPets, setSelectedPets, setIsOpen, mo
     return (
         <div className="">
             <div className="mb-4 flex space-x-4">
-                <Button variant={"secondary"} className={`cursor-pointer ${selectedSide == "HEADS" ? "border border-green-500" : ""}`} onClick={() => {
+                <Button variant={"secondary"} className={`hover:scale-105 cursor-pointer ${selectedSide == "HEADS" ? "border border-green-500" : ""}`} onClick={() => {
                     if (selectedSide !== "HEADS") {
                         setSelectedSide("HEADS")
                     }
                 }}
                     disabled={loading || player1Side == "HEADS"}>Heads</Button>
-                <Button variant={"secondary"} className={`cursor-pointer ${selectedSide == "TAILS" ? "border border-green-500" : ""}`}
+                <Button variant={"secondary"} className={`hover:scale-105 cursor-pointer ${selectedSide == "TAILS" ? "border border-green-500" : ""}`}
                     onClick={() => {
                         if (selectedSide !== "TAILS") {
                             setSelectedSide("TAILS")
@@ -132,7 +132,7 @@ export default function BetButton({ selectedPets, setSelectedPets, setIsOpen, mo
                     disabled={loading || player1Side == "TAILS"}>Tails</Button>
             </div>
             <div className="flex justify-end">
-                <Button variant={"outline"} className="cursor-pointer px-10" onClick={() => {
+                <Button variant={"outline"} className="hover:scale-105 cursor-pointer px-10" onClick={() => {
                     if (mode === "CREATE") {
                         createGame();
                     } else if (mode === "JOIN") {

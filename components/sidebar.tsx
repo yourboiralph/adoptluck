@@ -88,7 +88,7 @@ export function Sidebar(){
                         <Link href={nav.href} key={key}>
                             <Button
                                 variant={isActive ? "default" : "ghost"}
-                                className="w-full justify-start h-12 px-4"
+                                className={`w-full justify-start h-12 px-4 ${isActive ? "bg-green-500 hover:bg-green-400" : ""} rounded-none`}
                             >
                                 <Icon className="mr-2 h-4 w-4" />
                                 {nav.name}
