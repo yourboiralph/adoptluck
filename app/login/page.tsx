@@ -1,5 +1,6 @@
 "use client";
 
+import { logger } from "@/lib/logger";
 import { Button } from "@/components/ui/button";
 import {
     Card,
@@ -41,7 +42,7 @@ export default function LoginPage() {
             )
         } catch (error: any) {
             setError(error.message)
-            console.log(error.message)
+            logger.log(error.message)
         } finally {
             setIsLoading(false)
         }

@@ -1,6 +1,6 @@
 import prisma from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
-
+import { logger } from "@/lib/logger";
 
 export async function POST(req: NextRequest) {
 
@@ -32,6 +32,6 @@ export async function POST(req: NextRequest) {
 
         return NextResponse.json({ pets: userPets });
     } catch (error) {
-        console.log(error)
+        logger.log(error)
     }
 }

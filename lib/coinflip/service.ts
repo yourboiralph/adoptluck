@@ -1,6 +1,6 @@
 import { CoinSide, PetStatus, GameStatus } from "@/app/generated/prisma/enums";
 import prisma from "../prisma";
-
+import { logger } from "@/lib/logger";
 
 
 export async function createGameWithPets(player1Id: string, side: CoinSide, userPetIds: string[]) {
@@ -20,8 +20,8 @@ export async function createGameWithPets(player1Id: string, side: CoinSide, user
                 pet_type: true
             }
         })
-        console.log(player1Id)
-        console.log(pets)
+        logger.log(player1Id)
+        logger.log(pets)
 
         if (pets.length !== userPetIds.length) {
             return { success: false, message: "Some pets are locked, invalid, or not owned." }
@@ -260,7 +260,7 @@ export async function joinGameWithPets(
             data: {
                 status: GameStatus.SETTLED,
                 result,
-                resultIdFromApi: resultFromApi.result,
+                resultIdFromApi: resultFromApi.id,
                 resultCreatedAt: resultFromApi.createdAt,
                 winner_user_id: winnerUserId,
             },

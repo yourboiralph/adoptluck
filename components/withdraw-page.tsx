@@ -10,6 +10,7 @@ import Link from "next/link";
 import prisma from "@/lib/prisma";
 import { useRouter } from "next/navigation";
 import NoPets from "./no-available-pets";
+import { logger } from "@/lib/logger";
 
 
 export default function WithdrawPageComponent() {
@@ -65,14 +66,14 @@ export default function WithdrawPageComponent() {
             return; // 🚫 don't start polling
         }
 
-        console.log("Polling started...");
+        logger.log("Polling started...");
 
         const interval = setInterval(() => {
             fetchPets();
         }, 10000);
 
         return () => {
-            console.log("Polling stopped.");
+            logger.log("Polling stopped.");
             clearInterval(interval);
         };
     }, [pets, fetchPets]);
@@ -81,7 +82,7 @@ export default function WithdrawPageComponent() {
 
 
     useEffect(() => {
-        console.log(selectedPets)
+        logger.log(selectedPets)
     }, [selectedPets])
 
     const MAX = 5;
@@ -123,7 +124,7 @@ export default function WithdrawPageComponent() {
             await fetchPets();          // ✅ this updates UI
             // router.refresh(); // optional, not needed for this UI
         } catch (e) {
-            console.error(e);
+            logger.error(e);
             toast.error("Error");
         }
     };

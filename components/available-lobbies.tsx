@@ -7,6 +7,7 @@ import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { socket } from "@/socket";
 import CoinFlipAnimating from "./CoinFlipAnimating";
 import NoLobby from "./no-available-lobby";
+import { logger } from "@/lib/logger";
 
 type CoinSide = "HEADS" | "TAILS";
 
@@ -63,19 +64,19 @@ export default function AvailableLobbies() {
           const err = await res.json();
           msg = err?.error ?? msg;
         } catch {}
-        console.log("HTTP", res.status, msg);
+        logger.log("HTTP", res.status, msg);
         return;
       }
 
       const data: DataMappedProp[] = await res.json();
-      console.log(data);
+      logger.log(data);
 
       data.forEach((lobby) => {
         // pick the correct key that your socket server expects
         socket.emit("join_room_lobby", { id: lobby.id });
       });
     } catch (error) {
-      console.log(error);
+      logger.log(error);
     }
   };
 
@@ -89,13 +90,13 @@ export default function AvailableLobbies() {
       const res = await fetch("/api/coinflip/lobby", { cache: "no-store" });
       if (!res.ok) {
         const text = await res.text();
-        console.error("fetch /api/coinflip/lobby failed:", res.status, text);
+        logger.error("fetch /api/coinflip/lobby failed:", res.status, text);
         return;
       }
       const data = await res.json();
       setLobbies(data.data ?? data.lobbydata ?? []);
     } catch (e) {
-      console.error(e);
+      logger.error(e);
     }
   }, []);
 

@@ -148,7 +148,7 @@ model Game {
   player1_side   CoinSide
   result         CoinSide?
   winner_user_id String?
-  resultIdFromApi Int?
+  resultIdFromApi String?
   resultCreatedAt DateTime?
 
   createdAt DateTime @default(now())

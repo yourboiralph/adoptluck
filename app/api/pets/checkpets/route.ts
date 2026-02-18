@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { PetVariant } from "@/app/generated/prisma/enums";
 import values from "@/lib/json/value.json";
+import { logger } from "@/lib/logger";
 
 type IncomingPet = {
   petname: string;
@@ -34,9 +35,9 @@ function numOrZero(v: any): number {
 }
 
 // 🔍 sanity logs (optional; you can remove later)
-console.log("VALUES COUNT:", (values as any[]).length);
-console.log("FIRST ROW NAME:", (values as any[])[0]?.name);
-console.log(
+logger.log("VALUES COUNT:", (values as any[]).length);
+logger.log("FIRST ROW NAME:", (values as any[])[0]?.name);
+logger.log(
   "HAS CAT:",
   (values as any[]).some((v) => String(v?.name).trim().toLowerCase() === "cat")
 );
@@ -54,7 +55,7 @@ function getValueForPet(p: IncomingPet): number {
   const nameKey = normalizeName(p.petname);
   const row = valueMap.get(nameKey);
   if (!row) {
-    if (nameKey === "cat") console.log("CAT NOT FOUND. key=", nameKey);
+    if (nameKey === "cat") logger.log("CAT NOT FOUND. key=", nameKey);
     return 0;
   }
 
@@ -63,8 +64,8 @@ function getValueForPet(p: IncomingPet): number {
 
   // ✅ DEBUG (remove later if you want)
   if (nameKey === "cat") {
-    console.log("CAT ROW RAW:", row);
-    console.log("CAT LOOKUP:", {
+    logger.log("CAT ROW RAW:", row);
+    logger.log("CAT LOOKUP:", {
       petname: p.petname,
       nameKey,
       variant: p.variant,
@@ -206,7 +207,7 @@ export async function POST(req: NextRequest) {
       existing_after: after,
     });
   } catch (error) {
-    console.error("PET CHECK+CREATE ERROR:", error);
+    logger.error("PET CHECK+CREATE ERROR:", error);
     return NextResponse.json({ error: "Something went wrong" }, { status: 500 });
   }
 }

@@ -4,6 +4,7 @@ import { redirect } from "next/navigation"
 import { auth } from "./auth"
 import { headers } from "next/headers"
 import prisma from "../prisma"
+import { logger } from "@/lib/logger";
 
 export async function signInWithUsername(username: string, password: string) {
     const result = await auth.api.signInUsername({
@@ -53,7 +54,7 @@ export async function signUpWithUsername(
         });
       }
     } catch (e) {
-      console.log("Thumbnail fetch failed:", e);
+      logger.log("Thumbnail fetch failed:", e);
     }
 
     return { ok: true };

@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
@@ -31,7 +32,7 @@ export async function POST(req: Request) {
       { status: 201 }
     );
   } catch (error) {
-    console.error(error);
+    logger.error(error);
     return NextResponse.json(
       { message: "Failed to create user_pets" },
       { status: 422 }

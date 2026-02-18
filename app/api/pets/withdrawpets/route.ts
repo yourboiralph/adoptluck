@@ -1,5 +1,6 @@
 import prisma from "@/lib/prisma"
 import { NextResponse } from "next/server"
+import { logger } from "@/lib/logger";
 
 type Pet = {
     id: string
@@ -36,6 +37,6 @@ export async function POST(req: Request) {
 
         return NextResponse.json({success: true, message: "Successfully withdraw pets."})
     } catch (error) {
-        console.log(error)
+        logger.log(error)
     }
 }

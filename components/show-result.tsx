@@ -6,6 +6,7 @@ import ShowResultModal from "./show-result-modal";
 import { Spinner } from "./ui/spinner";
 import { authClient } from "@/lib/auth/auth-client";
 import { CoinSide } from "@/app/generated/prisma/enums";
+import { logger } from "@/lib/logger";
 
 type GameData = {
   result: CoinSide | null;
@@ -57,10 +58,10 @@ export default function ShowResult({ gameId }: { gameId: string }) {
         }
 
         const json = await res.json();
-        console.log("JSON DATA", json)
+        logger.log("JSON DATA", json)
         setData(json)
       } catch (e) {
-        console.error(e);
+        logger.error(e);
       } finally {
         setLoading(false);
       }

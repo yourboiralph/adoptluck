@@ -1,6 +1,8 @@
 import { getSession } from "@/lib/auth/auth-actions";
 import prisma from "@/lib/prisma";
+import { Copy } from "lucide-react";
 import { redirect } from "next/navigation";
+import CopyResultId from "./CopyResultId";
 
 export default async function HistoryPageComponent() {
     const session = await getSession();
@@ -41,6 +43,7 @@ export default async function HistoryPageComponent() {
                             <th className="text-left px-4 py-3">Status</th>
                             <th className="text-left px-4 py-3">Side</th>
                             <th className="text-left px-4 py-3">Result</th>
+                            <th className="text-left px-4 py-3">Check Fairness</th>
                             <th className="text-left px-4 py-3">Updated</th>
                         </tr>
                     </thead>
@@ -88,6 +91,11 @@ export default async function HistoryPageComponent() {
                                                 </span>
                                             );
                                         })()}
+                                    </td>
+
+                                    <td className="px-4 py-3 flex items-center gap-4">
+                                        <p>{dt.resultIdFromApi}</p>
+                                        <CopyResultId value={dt.resultIdFromApi ?? ""} />
                                     </td>
 
 

@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
@@ -51,7 +52,7 @@ export async function GET() {
 
     return NextResponse.json({ data }, { status: 200 });
   } catch (error) {
-    console.error(error);
+    logger.error(error);
     return NextResponse.json(
       { message: "Failed to load lobbies" },
       { status: 500 }

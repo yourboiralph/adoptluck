@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { logger } from "@/lib/logger";
 import {
     Card,
     CardAction,
@@ -124,7 +125,7 @@ export default function RegisterPage() {
             router.refresh();
 
         } catch (err: any) {
-            console.log(err);
+            logger.log(err);
             setError(err?.message ?? "Signup failed");
         } finally {
             setIsLoading(false);

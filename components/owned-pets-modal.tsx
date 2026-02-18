@@ -9,6 +9,7 @@ import { Spinner } from "./ui/spinner"
 import BetButton from "./bet-button"
 import JoinButton from "./join-button"
 import { CoinSide } from "@/app/generated/prisma/enums"
+import { logger } from "@/lib/logger";
 
 
 type Pet = {
@@ -58,15 +59,15 @@ export default function OwnedPetsModal({
         const data = await res.json()
 
         setPets(data.pets)
-        console.log("FETCHED PETS:", data.pets)
+        logger.log("FETCHED PETS:", data.pets)
       }
 
       fetchPets()
     } catch (error) {
-      console.error("Fetching Pets error: ", error)
+      logger.error("Fetching Pets error: ", error)
     }
 
-    console.log("fetching pets")
+    logger.log("fetching pets")
   }, [isOpen]);
 
 

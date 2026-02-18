@@ -1,6 +1,7 @@
 // app/api/users/[username]/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
+import { logger } from "@/lib/logger";
 
 export async function GET(
   _req: NextRequest,
@@ -38,7 +39,7 @@ export async function GET(
 
     return NextResponse.json({ user }, { status: 200 });
   } catch (err) {
-    console.error("GET /api/users/[username] error:", err);
+    logger.error("GET /api/users/[username] error:", err);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

@@ -5,6 +5,7 @@ import { CoinSide } from "@/app/generated/prisma/enums";
 import { Spinner } from "./ui/spinner";
 import { useRouter } from "next/navigation";
 import { socket } from "@/socket";
+import { logger } from "@/lib/logger";
 
 interface BetButtonProps {
     selectedPets: string[];
@@ -54,8 +55,8 @@ export default function BetButton({ selectedPets, setSelectedPets, setIsOpen, mo
 
             socket.emit("refresh_lobby")
             joinRoomLobby(data.game.game.id, "CREATE")
-            console.log("CREATED", data.game.game.id)
-            console.log("FULL DATA CREATE", data.game)
+            logger.log("CREATED", data.game.game.id)
+            logger.log("FULL DATA CREATE", data.game)
             setSelectedSide("HEADS")
             setSelectedPets([])
             setIsOpen(false)
@@ -66,7 +67,7 @@ export default function BetButton({ selectedPets, setSelectedPets, setIsOpen, mo
             setSelectedPets([])
             setIsOpen(false)
             toast.error("Something went wrong");
-            console.log(error)
+            logger.log(error)
         } finally {
             setLoading(false);
         }
@@ -98,7 +99,7 @@ export default function BetButton({ selectedPets, setSelectedPets, setIsOpen, mo
             // ✅ this triggers server animation event + delayed refresh
             joinRoomLobby(data.game.id, "JOIN", data.game.result);
 
-            console.log("JOINED", data.game.id);
+            logger.log("JOINED", data.game.id);
             setSelectedPets([]);
             setIsOpen(false);
             toast.success("Successfully placed a bet.");
@@ -106,7 +107,7 @@ export default function BetButton({ selectedPets, setSelectedPets, setIsOpen, mo
             setSelectedPets([]);
             setIsOpen(false);
             toast.error("Something went wrong");
-            console.log(error);
+            logger.log(error);
         } finally {
             setLoading(false);
         }
@@ -137,7 +138,7 @@ export default function BetButton({ selectedPets, setSelectedPets, setIsOpen, mo
                     } else if (mode === "JOIN") {
                         joinGame();
                     } else {
-                        console.log("No mode of game");
+                        logger.log("No mode of game");
                     }
                 }}
                     disabled={loading || selectedPets.length === 0}>{loading && <Spinner />}Bet</Button>
