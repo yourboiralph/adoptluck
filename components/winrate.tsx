@@ -54,7 +54,7 @@ export default async function Winrate() {
 
 
     return (
-        <div className="grid grid-cols-3 mb-10 gap-10">
+        <div className="grid grid-cols-1 lg:grid-cols-3 mb-10 gap-2 lg:gap-10">
             <div className="border border-green-500 w-full p-4 rounded-lg">
                 <p className="text-sm">Wins</p>
                 <div className="flex items-center justify-center text-lg">

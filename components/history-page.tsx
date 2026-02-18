@@ -26,7 +26,7 @@ export default async function HistoryPageComponent() {
     });
 
     return (
-        <div className="w-full bg-card rounded-xl border border-border overflow-hidden">
+        <div className="w-full bg-card rounded-xl border border-border overflow-hidden mb-24">
             <div className="p-4 border-b border-border">
                 <p className="text-lg font-semibold">Transaction History</p>
             </div>
