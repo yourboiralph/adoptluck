@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
 import { Spinner } from "./ui/spinner";
@@ -14,6 +14,7 @@ import { useRouter } from "next/navigation";
 export default function WithdrawPageComponent() {
     const botUser = "Bubblerice1"
     const botLink = "https://www.roblox.com/share?code=ba96d96ce77a504091d7a40160b67118&type=Server"
+    const router = useRouter()
     type Pet = {
         id: string,
         locked_game_id: string,
@@ -36,7 +37,13 @@ export default function WithdrawPageComponent() {
     const [loading, setLoading] = useState(false)
     const [selectedPets, setSelectedPets] = useState<string[]>([])
     const [error, setError] = useState("")
-    const fetchPets = async () => {
+
+    const hasPendingWithdraw = pets.some(
+        (pet) => pet.status === "ON_WITHDRAW"
+    );
+
+
+    const fetchPets = useCallback(async () => {
         setLoading(true);
         try {
             const res = await fetch("/api/pets/user", { cache: "no-store" });
@@ -45,11 +52,31 @@ export default function WithdrawPageComponent() {
         } finally {
             setLoading(false);
         }
-    };
+    }, []);
+
 
     useEffect(() => {
-        fetchPets();
-    }, []);
+        fetchPets(); // always fetch on mount
+    }, [fetchPets]);
+
+    useEffect(() => {
+        if (!pets.some((pet) => pet.status === "ON_WITHDRAW")) {
+            return; // 🚫 don't start polling
+        }
+
+        console.log("Polling started...");
+
+        const interval = setInterval(() => {
+            fetchPets();
+        }, 10000);
+
+        return () => {
+            console.log("Polling stopped.");
+            clearInterval(interval);
+        };
+    }, [pets, fetchPets]);
+
+
 
 
     useEffect(() => {
@@ -74,7 +101,7 @@ export default function WithdrawPageComponent() {
         })
     }
 
-    const router = useRouter()
+
     const handleWithdraw = async () => {
         try {
             const res = await fetch("/api/pets/checkwithdrawstatus", {
