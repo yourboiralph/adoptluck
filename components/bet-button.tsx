@@ -55,6 +55,7 @@ export default function BetButton({ selectedPets, setSelectedPets, setIsOpen, mo
             socket.emit("refresh_lobby")
             joinRoomLobby(data.game.game.id, "CREATE")
             console.log("CREATED", data.game.game.id)
+            console.log("FULL DATA CREATE", data.game)
             setSelectedSide("HEADS")
             setSelectedPets([])
             setIsOpen(false)

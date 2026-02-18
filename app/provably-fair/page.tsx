@@ -1,4 +1,5 @@
 import MainLayout from "@/components/main-layout";
+import ProvablyFairComponent from "@/components/provably-fair";
 
 
 
@@ -6,9 +7,7 @@ export default function ProvablyFair() {
 
     return (
         <MainLayout>
-            <div>
-                ProvablyFair
-            </div>
+            <ProvablyFairComponent />
         </MainLayout>
     )
 }
