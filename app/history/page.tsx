@@ -1,9 +1,15 @@
+import DepositPageComponent from "@/components/history-page";
+import MainLayout from "@/components/main-layout";
+import Winrate from "@/components/winrate";
 
 
 
 export default function HistoryPage() {
 
     return (
-        <div>History</div>
+        <MainLayout>
+            <Winrate />
+            <DepositPageComponent />
+        </MainLayout>
     )
 }

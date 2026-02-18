@@ -9,6 +9,7 @@ import { Button } from "./ui/button";
 import Link from "next/link";
 import prisma from "@/lib/prisma";
 import { useRouter } from "next/navigation";
+import NoPets from "./no-available-pets";
 
 
 export default function WithdrawPageComponent() {
@@ -127,6 +128,10 @@ export default function WithdrawPageComponent() {
         }
     };
 
+    const filteredPets = pets.filter(
+        (pet) => pet.status !== "WITHDRAWED"
+    );
+
     return (
         <div className="mx-auto max-w-screen-2xl h-full p-4 ">
             <div className="grid h-full gap-6 grid-cols-1 lg:grid-cols-2">
@@ -139,14 +144,18 @@ export default function WithdrawPageComponent() {
                                 <Spinner data-icon="inline-start" />
                                 <p>Loading...</p>
                             </div>
+                        ) : filteredPets.length === 0 ? (
+                            <div className="flex items-center justify-center h-full">
+                                <NoPets />
+                            </div>
                         ) : (
                             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
-                                {pets.filter((pet) => pet.status !== "WITHDRAWED").map((pet) => (
+                                {filteredPets.map((pet) => (
                                     <div
                                         key={pet.id}
                                         className={`bg-black/70 flex items-center justify-center flex-col p-2 rounded-lg hover:scale-110 hover:cursor-pointer border ${selectedPets.includes(pet.id)
-                                            ? "border-green-500"
-                                            : "border-gray"
+                                                ? "border-green-500"
+                                                : "border-gray"
                                             }`}
                                         onClick={() =>
                                             pet.status === "AVAILABLE" && selectPet(pet.id)
@@ -159,13 +168,20 @@ export default function WithdrawPageComponent() {
                                         />
                                         <p>{pet.pet_type.value}</p>
                                         <p>
-                                            {pet.status === "LOCKED" ? "🔒" : pet.pet_type.value === 0 ? "❌ No Value" : pet.status === "ON_WITHDRAW" ? "🕒Withdraw" : "✅"}
+                                            {pet.status === "LOCKED"
+                                                ? "🔒"
+                                                : pet.pet_type.value === 0
+                                                    ? "❌ No Value"
+                                                    : pet.status === "ON_WITHDRAW"
+                                                        ? "🕒Withdraw"
+                                                        : "✅"}
                                         </p>
                                     </div>
                                 ))}
                             </div>
                         )}
                     </div>
+
 
                     {/* Sticky bottom button (inside panel) */}
                     <div className="absolute bottom-0 left-0 right-0 bg-background border-t border-accent p-4 rounded-b-2xl">

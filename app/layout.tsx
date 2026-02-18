@@ -39,7 +39,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${luckiest.variable} antialiased dark font-luckiest ${fredoka.variable}`}
+        className={`${geistSans.variable} ${geistMono.variable} ${luckiest.variable} antialiased dark font-luckiest ${fredoka.variable} select-none`}
       >
           {children}
           <Toaster />

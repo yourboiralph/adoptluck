@@ -6,6 +6,7 @@ import ShowResult from "./show-result";
 import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { socket } from "@/socket";
 import CoinFlipAnimating from "./CoinFlipAnimating";
+import NoLobby from "./no-available-lobby";
 
 type CoinSide = "HEADS" | "TAILS";
 
@@ -261,7 +262,7 @@ export default function AvailableLobbies() {
             </div>
           ))
         ) : (
-          <div>NO LOBBY</div>
+          <NoLobby />
         )}
       </Suspense>
     </div>
