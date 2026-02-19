@@ -2,12 +2,21 @@ import MainLayout from "@/components/main-layout";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardAction, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import prisma from "@/lib/prisma";
 import Link from "next/link";
 
 
-export default function DepositPage() {
-    const botUser = "Bubblerice1"
-    const botLink = "https://www.roblox.com/share?code=ba96d96ce77a504091d7a40160b67118&type=Server"
+
+export default async function DepositPage() {
+    const botRes = await prisma.bot.findFirst({
+        where: {
+            status: "AVAILABLE"
+        }
+    })
+
+    const botUser = botRes?.name ?? "NO BOTS AVAILABLE"
+    const botLink = botRes?.bot_link ?? "NO BOTS AVAILABLE"
+
     return (
         <MainLayout >
             <div className="flex items-center justify-center h-screen">
@@ -30,9 +39,12 @@ export default function DepositPage() {
                         </CardDescription>
                     </CardHeader>
                     <CardFooter>
-                        <Link href={botLink} target="_blank" rel="noopener noreferrer" className="w-full">
+
+                        {botUser !== "NO BOTS AVAILABLE" ? (<Link href={botLink} target="_blank" rel="noopener noreferrer" className="w-full">
                             <Button className="w-full">Join Server</Button>
-                        </Link>
+                        </Link>) : (<div className="text-center w-full text-red-500 font-bold text-2xl"><p>
+                            No BOTS Available.</p></div>)}
+
 
                     </CardFooter>
                 </Card>

@@ -12,10 +12,12 @@ import { useRouter } from "next/navigation";
 import NoPets from "./no-available-pets";
 import { logger } from "@/lib/logger";
 
+type WithdrawPageProps = {
+    botUser: string,
+    botLink: string
+}
 
-export default function WithdrawPageComponent() {
-    const botUser = "Bubblerice1"
-    const botLink = "https://www.roblox.com/share?code=ba96d96ce77a504091d7a40160b67118&type=Server"
+export default function WithdrawPageComponent({botUser, botLink} : WithdrawPageProps) {
     const router = useRouter()
     type Pet = {
         id: string,

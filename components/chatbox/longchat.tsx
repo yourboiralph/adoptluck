@@ -7,6 +7,7 @@ import { connectAuthedSocket, socket } from "@/socket";
 import { toast } from "sonner";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Send } from "lucide-react";
+import Image from "next/image";
 
 type ServerChatPayload = {
   message: string;
@@ -29,6 +30,7 @@ type User = {
   id: string;
   username: string;
   image?: string | null;
+  role: string
 };
 
 type LongChatProps = {
@@ -160,7 +162,15 @@ export default function LongChat({ user }: LongChatProps) {
                 </Avatar>
 
                 <div>
-                  <p>{isMe ? "Me" : m.username}</p>
+                  <div className="flex items-center">
+                    <p>{isMe ? "Me" : m.username}</p>
+                    <p> {user.role == "Owner" && <img src="/crown.svg" width={24} height={24} alt="crown" className="text-red-500" />}
+                        {user.role == "Admin" && <img src="/shield.svg" width={24} height={24} alt="shield" />}
+                        {user.role == "Whale" && <img src="/whale.svg" width={24} height={24} alt="whale" />}
+                        {user.role == "Shark" && <img src="/shark.svg" width={24} height={24} alt="shark" />}
+                        {user.role == "Dolphin" && <img src="/dolphin.svg" width={24} height={24} alt="dolphin" /> }
+                        {user.role == "Fish" && <img src="/fish.svg" width={24} height={24} alt="fish" />}</p>
+                  </div>
                   <div className="font-normal">{m.message}</div>
                 </div>
               </div>

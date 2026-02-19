@@ -7,6 +7,15 @@ datasource db {
   provider = "postgresql"
 }
 
+enum Roles {
+  Fish
+  Dolphin
+  Shark
+  Whale
+  Admin
+  Owner
+}
+
 model User {
   id              String    @id @default(cuid())
   name            String?
@@ -21,6 +30,7 @@ model User {
   banReason       String?
   bannedUntil     DateTime? // null = permanent if isBanned true
   bannedAt        DateTime?
+  role            Roles     @default(Fish)
 
   accounts         Account[]
   sessions         Session[]
@@ -31,6 +41,20 @@ model User {
   gameBets         GameBet[]
 
   @@map("user")
+}
+
+enum BotStatus {
+  AVAILABLE
+  UNAVAILABLE
+}
+
+model Bot {
+  id        String    @id
+  name      String
+  bot_link  String
+  status    BotStatus @default(UNAVAILABLE)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 }
 
 model Session {

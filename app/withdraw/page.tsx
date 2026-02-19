@@ -9,11 +9,17 @@ import prisma from "@/lib/prisma";
 
 
 export default async function WithdrawPage() {
-    const botUser = "Bubblerice1"
-    const botLink = "https://www.roblox.com/share?code=ba96d96ce77a504091d7a40160b67118&type=Server"
+    const botRes = await prisma.bot.findFirst({
+        where: {
+            status: "AVAILABLE"
+        }
+    })
+
+    const botUser = botRes?.name ?? "NO BOTS AVAILABLE"
+    const botLink = botRes?.bot_link ?? "NO BOTS AVAILABLE"
     return (
         <MainLayout>
-            <WithdrawPageComponent />
+            <WithdrawPageComponent botUser={botUser} botLink={botLink} />
         </MainLayout>
     )
 

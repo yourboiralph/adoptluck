@@ -5,6 +5,7 @@ import { auth } from "./auth"
 import { headers } from "next/headers"
 import prisma from "../prisma"
 import { logger } from "@/lib/logger";
+import { cache } from "react"
 
 export async function signInWithUsername(username: string, password: string) {
     const result = await auth.api.signInUsername({
@@ -75,10 +76,10 @@ export async function signOut() {
     }
 }
 
-export async function getSession() {
+export const getSession = cache(async () => {
     const result = await auth.api.getSession({
         headers: await headers(),
     });
 
     return result
-}
+})
