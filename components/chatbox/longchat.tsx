@@ -169,30 +169,31 @@ export default function LongChat({ user }: LongChatProps) {
               ].join(" ")}
             >
               <div className="text-sm font-bold flex items-start gap-2">
-                <Avatar className={isMe ? "bg-green-500" : "bg-blue-400"}>
+                <Avatar className={`size-10 ${isMe ? "bg-green-500" : "bg-blue-400"}`}>
                   <AvatarImage src={isMe ? user.image ?? "" : m.image} />
                   <AvatarFallback>{isMe ? meFallback : fallback}</AvatarFallback>
                 </Avatar>
 
                 <div>
-                  <div className="flex items-center gap-2">
+                  <div className="">
                     <p>{isMe ? "Me" : m.username}</p>
-                    <p> {m?.role == "Owner" && <img src="/crown.svg" width={24} height={24} alt="crown" />}
-                      {m?.role == "Admin" && <img src="/shield.svg" width={24} height={24} alt="shield" />}
-                      {m?.role == "Whale" && <img src="/whale.svg" width={24} height={24} alt="whale" />}
-                      {m?.role == "Shark" && <img src="/shark.svg" width={24} height={24} alt="shark" />}
-                      {m?.role == "Dolphin" && <img src="/dolphin.svg" width={24} height={24} alt="dolphin" />}
-                      {m?.role == "Fish" && <img src="/fish.svg" width={24} height={24} alt="fish" />}
-
-                      
-                    </p>
-                    <p className={`text-sm font-bold
+                    <div className="flex items-center gap-1">
+                      <p>{m?.role == "Owner" && <img src="/crown.svg" width={24} height={24} alt="crown" />}
+                        {m?.role == "Admin" && <img src="/shield.svg" width={24} height={24} alt="shield" />}
+                        {m?.role == "Whale" && <img src="/whale.svg" width={24} height={24} alt="whale" />}
+                        {m?.role == "Shark" && <img src="/shark.svg" width={24} height={24} alt="shark" />}
+                        {m?.role == "Dolphin" && <img src="/dolphin.svg" width={24} height={24} alt="dolphin" />}
+                        {m?.role == "Fish" && <img src="/fish.svg" width={24} height={24} alt="fish" />}</p>
+                      <p className={`text-sm font-bold
                         ${m?.role == "Owner" && "text-red-500"}
                         ${m?.role == "Admin" && "text-red-300"}
                         ${m?.role == "Whale" && "text-purple-500"}
                         ${m?.role == "Shark" && "text-blue-500"}
                         ${m?.role == "Dolphin" && "text-yellow-200"}
-                        ${m?.role == "Fish" && "text-lime-300"} `}>{m?.role}</p>
+                        ${m?.role == "Fish" && "text-lime-300"} `}>
+                        {m?.role}
+                      </p>
+                    </div>
                   </div>
                   <div className="font-normal break-all">{m.message}</div>
                 </div>
