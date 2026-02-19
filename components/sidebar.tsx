@@ -60,12 +60,12 @@ export function Sidebar() {
                         <p className="text-green-500 capitalize">{username}</p>
                         <div className="flex items-center">
                             <p>{role == "Owner" && <img src="/crown.svg" width={24} height={24} alt="crown" />}
-                            {role == "Admin" && <img src="/shield.svg" width={24} height={24} alt="shield" />}
-                            {role == "Whale" && <img src="/whale.svg" width={24} height={24} alt="whale" />}
-                            {role == "Shark" && <img src="/shark.svg" width={24} height={24} alt="shark" />}
-                            {role == "Dolphin" && <img src="/dolphin.svg" width={24} height={24} alt="dolphin" />}
-                            {role == "Fish" && <img src="/fish.svg" width={24} height={24} alt="fish" />}</p>
-                        <p className={`text-sm font-bold
+                                {role == "Admin" && <img src="/shield.svg" width={24} height={24} alt="shield" />}
+                                {role == "Whale" && <img src="/whale.svg" width={24} height={24} alt="whale" />}
+                                {role == "Shark" && <img src="/shark.svg" width={24} height={24} alt="shark" />}
+                                {role == "Dolphin" && <img src="/dolphin.svg" width={24} height={24} alt="dolphin" />}
+                                {role == "Fish" && <img src="/fish.svg" width={24} height={24} alt="fish" />}</p>
+                            <p className={`text-sm font-bold
                         ${role == "Owner" && "text-red-500"}
                         ${role == "Admin" && "text-red-300"}
                         ${role == "Whale" && "text-purple-500"}
@@ -114,6 +114,13 @@ export function Sidebar() {
                     )
                 })}
             </nav>
+
+            <Link href={"https://discord.gg/aNKNd9SUDt"} target="_blank" rel="noopener noreferrer">
+                <div className="mt-4 px-4 flex items-center gap-2 hover:cursor-pointer hover:bg-green-800 transition-all duration-300">
+                    <img src={"/discord.svg"} className="size-16" />
+                    <p>Join our Discord Server</p>
+                </div>
+            </Link>
         </div>
     )
 }
