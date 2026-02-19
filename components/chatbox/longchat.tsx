@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { connectAuthedSocket, socket } from "@/socket";
@@ -48,6 +48,16 @@ export default function LongChat({ user }: LongChatProps) {
     () => (user.username?.charAt(0) || "U").toUpperCase(),
     [user.username]
   );
+
+
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+
+    el.scrollTop = el.scrollHeight;
+  }, [messages]); // 🔥 whenever messages change
+
 
   // 1) Connect socket once + fetch token
   useEffect(() => {
@@ -145,7 +155,7 @@ export default function LongChat({ user }: LongChatProps) {
 
   return (
     <div className="flex flex-col h-full w-full">
-      <div className="flex-1 w-full mt-4 overflow-y-auto overflow-x-hidden px-2 flex flex-col gap-2">
+      <div ref={containerRef} className="flex-1 w-full mt-4 overflow-y-auto overflow-x-hidden px-2 flex flex-col gap-2">
         {messages.map((m) => {
           const isMe = m.userId === user.id;
           const fallback = (m.username?.charAt(0) || "U").toUpperCase();
@@ -154,7 +164,7 @@ export default function LongChat({ user }: LongChatProps) {
             <div
               key={m.id}
               className={[
-                "px-4 py-2 rounded-lg max-w-[85%] wrap-break-word",
+                "px-4 py-2 rounded-lg max-w-[75%] wrap-break-word",
                 isMe ? "bg-green-500 text-white ml-auto" : "bg-blue-400 text-white mr-auto",
               ].join(" ")}
             >

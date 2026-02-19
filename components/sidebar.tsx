@@ -58,6 +58,13 @@ export function Sidebar() {
                     </Avatar>
                     <div>
                         <p className="text-green-500 capitalize">{username}</p>
+                        <div className="flex items-center">
+                            <p>{role == "Owner" && <img src="/crown.svg" width={24} height={24} alt="crown" />}
+                            {role == "Admin" && <img src="/shield.svg" width={24} height={24} alt="shield" />}
+                            {role == "Whale" && <img src="/whale.svg" width={24} height={24} alt="whale" />}
+                            {role == "Shark" && <img src="/shark.svg" width={24} height={24} alt="shark" />}
+                            {role == "Dolphin" && <img src="/dolphin.svg" width={24} height={24} alt="dolphin" />}
+                            {role == "Fish" && <img src="/fish.svg" width={24} height={24} alt="fish" />}</p>
                         <p className={`text-sm font-bold
                         ${role == "Owner" && "text-red-500"}
                         ${role == "Admin" && "text-red-300"}
@@ -65,6 +72,7 @@ export function Sidebar() {
                         ${role == "Shark" && "text-blue-500"}
                         ${role == "Dolphin" && "text-yellow-200"}
                         ${role == "Fish" && "text-lime-300"} `}>{role}</p>
+                        </div>
                     </div>
                 </div>
 
