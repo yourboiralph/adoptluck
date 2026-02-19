@@ -154,7 +154,7 @@ export default function LongChat({ user }: LongChatProps) {
             <div
               key={m.id}
               className={[
-                "px-4 py-2 rounded-lg max-w-[75%] break-words",
+                "px-4 py-2 rounded-lg max-w-[85%] wrap-break-word",
                 isMe ? "bg-green-500 text-white ml-auto" : "bg-blue-400 text-white mr-auto",
               ].join(" ")}
             >
@@ -168,13 +168,23 @@ export default function LongChat({ user }: LongChatProps) {
                   <div className="flex items-center gap-2">
                     <p>{isMe ? "Me" : m.username}</p>
                     <p> {m?.role == "Owner" && <img src="/crown.svg" width={24} height={24} alt="crown" />}
-                        {m?.role == "Admin" && <img src="/shield.svg" width={24} height={24} alt="shield" />}
-                        {m?.role == "Whale" && <img src="/whale.svg" width={24} height={24} alt="whale" />}
-                        {m?.role == "Shark" && <img src="/shark.svg" width={24} height={24} alt="shark" />}
-                        {m?.role == "Dolphin" && <img src="/dolphin.svg" width={24} height={24} alt="dolphin" /> }
-                        {m?.role == "Fish" && <img src="/fish.svg" width={24} height={24} alt="fish" />}</p>
+                      {m?.role == "Admin" && <img src="/shield.svg" width={24} height={24} alt="shield" />}
+                      {m?.role == "Whale" && <img src="/whale.svg" width={24} height={24} alt="whale" />}
+                      {m?.role == "Shark" && <img src="/shark.svg" width={24} height={24} alt="shark" />}
+                      {m?.role == "Dolphin" && <img src="/dolphin.svg" width={24} height={24} alt="dolphin" />}
+                      {m?.role == "Fish" && <img src="/fish.svg" width={24} height={24} alt="fish" />}
+
+                      
+                    </p>
+                    <p className={`text-sm font-bold
+                        ${m?.role == "Owner" && "text-red-500"}
+                        ${m?.role == "Admin" && "text-red-300"}
+                        ${m?.role == "Whale" && "text-purple-500"}
+                        ${m?.role == "Shark" && "text-blue-500"}
+                        ${m?.role == "Dolphin" && "text-yellow-200"}
+                        ${m?.role == "Fish" && "text-lime-300"} `}>{m?.role}</p>
                   </div>
-                  <div className="font-normal">{m.message}</div>
+                  <div className="font-normal break-all">{m.message}</div>
                 </div>
               </div>
             </div>

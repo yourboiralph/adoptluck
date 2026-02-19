@@ -26,12 +26,12 @@ export default async function MainLayout({
             {/* background */}
             <div className="pointer-events-none absolute inset-0 overflow-hidden">
                 {/* Large blobs */}
-                <div className="absolute -top-40 left-1/2 h-[520px] w-[520px] -translate-x-1/2 rounded-full bg-gradient-to-br from-fuchsia-500/25 via-indigo-500/20 to-cyan-500/20 blur-3xl" />
-                <div className="absolute -bottom-48 -left-24 h-[520px] w-[520px] rounded-full bg-gradient-to-br from-emerald-500/20 via-teal-500/15 to-sky-500/15 blur-3xl" />
+                <div className="absolute -top-40 left-1/2 h-130 w-130 -translate-x-1/2 rounded-full bg-linear-to-br from-fuchsia-500/25 via-indigo-500/20 to-cyan-500/20 blur-3xl" />
+                <div className="absolute -bottom-48 -left-24 h-130 w-130 rounded-full bg-linear-to-br from-emerald-500/20 via-teal-500/15 to-sky-500/15 blur-3xl" />
 
                 {/* Medium blobs */}
-                <div className="absolute top-32 right-20 h-[260px] w-[260px] rounded-full bg-gradient-to-br from-pink-500/20 via-purple-500/15 to-indigo-500/20 blur-2xl" />
-                <div className="absolute bottom-24 right-1/3 h-[300px] w-[300px] rounded-full bg-gradient-to-br from-cyan-400/20 via-blue-400/15 to-indigo-400/20 blur-2xl" />
+                <div className="absolute top-32 right-20 h-65 w-65 rounded-full bg-linear-to-br from-pink-500/20 via-purple-500/15 to-indigo-500/20 blur-2xl" />
+                <div className="absolute bottom-24 right-1/3 h-75 w-75 rounded-full bg-linear-to-br from-cyan-400/20 via-blue-400/15 to-indigo-400/20 blur-2xl" />
 
                 {/* Small floating circles */}
                 <div className="absolute top-20 left-20 h-32 w-32 rounded-full bg-fuchsia-500/20 blur-2xl" />
@@ -44,10 +44,10 @@ export default async function MainLayout({
                 <div className="absolute bottom-10 left-10 h-24 w-24 rounded-full bg-teal-400/20 blur-2xl" />
 
                 {/* Grid texture */}
-                <div className="absolute inset-0 opacity-40 [background-size:18px_18px] bg-[radial-gradient(circle_at_1px_1px,rgba(255,255,255,0.08)_1px,transparent_0)]" />
+                <div className="absolute inset-0 opacity-40 bg-size-[18px_18px] bg-[radial-gradient(circle_at_1px_1px,rgba(255,255,255,0.08)_1px,transparent_0)]" />
 
                 {/* Bottom fade */}
-                <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/10 dark:to-black/30" />
+                <div className="absolute inset-0 bg-linear-to-b from-transparent via-transparent to-black/10 dark:to-black/30" />
             </div>
 
 
@@ -65,7 +65,7 @@ export default async function MainLayout({
                     </div>
 
                     <div className="hidden lg:block lg:col-span-2">
-                        <div className="h-full border-l bg-background/60 backdrop-blur supports-backdrop-filter:bg-background/40">
+                        <div className="h-full max-h-screen border-l bg-background/60 backdrop-blur supports-backdrop-filter:bg-background/40">
                             <LongChat user={user} />
                         </div>
                     </div>
