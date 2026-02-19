@@ -5,194 +5,190 @@ import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { connectAuthedSocket, socket } from "@/socket";
 import { toast } from "sonner";
-import { Avatar, AvatarFallback } from "../ui/avatar";
-import { AvatarImage } from "@radix-ui/react-avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Send } from "lucide-react";
 
+type ServerChatPayload = {
+  message: string;
+  username: string;
+  image: string;
+  userId: string;
+  createdAt: string; // ISO string from server
+};
+
 type ChatMessage = {
-    id: string;
-    message: string;
-    from?: string;
-    image?: string;
-    createdAt: number;
+  id: string; // local id for React key
+  message: string;
+  username: string;
+  image: string;
+  userId: string;
+  createdAt: string; // ISO string
 };
 
 type User = {
-    id: string;
-    createdAt: Date;
-    updatedAt: Date;
-    email: string;
-    emailVerified: boolean;
-    name: string;
-    image?: string | null;
-    username: string;
+  id: string;
+  username: string;
+  image?: string | null;
 };
 
 type LongChatProps = {
-    user: User;
+  user: User;
 };
 
 export default function LongChat({ user }: LongChatProps) {
-    const [message, setMessage] = useState("");
-    const [messages, setMessages] = useState<ChatMessage[]>([]);
-    const [token, setToken] = useState<string | null>(null);
+  const [message, setMessage] = useState("");
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [token, setToken] = useState<string | null>(null);
 
-    const meFallback = useMemo(
-        () => (user.username?.charAt(0) || "U").toUpperCase(),
-        [user.username]
-    );
+  const meFallback = useMemo(
+    () => (user.username?.charAt(0) || "U").toUpperCase(),
+    [user.username]
+  );
 
-    // 1) Connect socket once + get token (client-only)
-    useEffect(() => {
-        let mounted = true;
+  // 1) Connect socket once + fetch token
+  useEffect(() => {
+    let mounted = true;
 
-        (async () => {
-            try {
-                // If you want to keep "auth only for send_message",
-                // you technically don't need connectAuthedSocket().
-                // But it's fine to keep it if you already have it.
-                await connectAuthedSocket();
+    (async () => {
+      try {
+        await connectAuthedSocket();
 
-                const res = await fetch("/api/socket-token", { credentials: "include" });
-                const json = await res.json();
+        const res = await fetch("/api/socket-token", { credentials: "include" });
+        const json = await res.json();
+        if (!res.ok) throw new Error(json?.error || "socket-token failed");
 
-                if (!res.ok) throw new Error(json?.error || "socket-token failed");
+        if (mounted) setToken(json.token);
+      } catch (e: any) {
+        toast.error(e?.message || "Chat setup failed");
+      }
+    })();
 
-                if (mounted) setToken(json.token);
-            } catch (e: any) {
-                toast.error(e?.message || "Chat setup failed");
-            }
-        })();
+    return () => {
+      mounted = false;
 
-        return () => {
-            mounted = false;
-            // ⚠️ Only disconnect here if this chat is the ONLY thing using the socket.
-            // If other parts of your app use the socket too, remove this disconnect.
-            socket.disconnect();
-        };
-    }, []);
+      // ⚠️ If other parts of your app use the same socket, DO NOT disconnect here.
+      // socket.disconnect();
+    };
+  }, []);
 
-    // 2) Receive messages from server
-    useEffect(() => {
-        const onReceive = (data: { message: string; username?: string; image?: string }) => {
-            setMessages((prev) => [
-                ...prev,
-                {
-                    id: crypto.randomUUID(),
-                    message: data.message,
-                    from: data.username ?? "other",
-                    image: data.image ?? "",
-                    createdAt: Date.now(),
-                },
-            ]);
-        };
-
-        const onBanned = (data: { reason?: string; bannedUntil?: string | null }) => {
-            toast.error(data?.reason || "You are banned from chat.");
-        };
-
-        const onChatError = (data: { message?: string }) => {
-            toast.error(data?.message || "Chat error");
-        };
-
-        socket.on("receive_message", onReceive);
-        socket.on("chat_banned", onBanned);
-        socket.on("chat_error", onChatError);
-
-        return () => {
-            socket.off("receive_message", onReceive);
-            socket.off("chat_banned", onBanned);
-            socket.off("chat_error", onChatError);
-        };
-    }, []);
-
-    // 3) Send message ONLY after server ACKs success
-    const sendMessage = () => {
-        const trimmed = message.trim();
-        if (!trimmed) return;
-
-        const wordCount = trimmed.split(/\s+/).filter(Boolean).length;
-        if (wordCount > 30) {
-            toast.error("Maximum 30 words only.");
-            return;
-        }
-
-        if (!token) {
-            toast.error("Chat not ready yet (missing token).");
-            return;
-        }
-
-        socket.emit(
-            "send_message",
-            { message: trimmed, token }, // ✅ don’t send username/image from client (server should decide)
-            (ack?: { ok: boolean; error?: string }) => {
-                if (!ack?.ok) {
-                    // ✅ do NOT append locally if server rejected (banned, invalid token, etc.)
-                    if (ack?.error === "banned") toast.error("You are banned from chat.");
-                    else toast.error(ack?.error || "Message failed");
-                    return;
-                }
-
-                // ✅ append only after success
-                setMessages((prev) => [
-                    ...prev,
-                    {
-                        id: crypto.randomUUID(),
-                        message: trimmed,
-                        from: "me",
-                        createdAt: Date.now(),
-                    },
-                ]);
-
-                setMessage("");
-            }
-        );
+  // 2) Receive messages from server (single source of truth)
+  useEffect(() => {
+    const onReceive = (data: ServerChatPayload) => {
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: `${data.userId}:${data.createdAt}`, // stable key
+          message: data.message,
+          username: data.username,
+          image: data.image || "",
+          userId: data.userId,
+          createdAt: data.createdAt,
+        },
+      ]);
     };
 
-    return (
-        <div className="flex flex-col h-full w-full">
-            <div className="flex-1 w-full mt-4 overflow-y-auto overflow-x-hidden px-2 flex flex-col gap-2">
-                {messages.map((m) => (
-                    <div
-                        key={m.id}
-                        className={`px-4 py-2 rounded-lg max-w-[75%] wrap-break-word break-all ${m.from === "me" ? "bg-green-500 text-white ml-auto" : "bg-blue-400 text-white mr-auto"
-                            }`}
-                    >
-                        <div className="text-sm font-bold flex items-start gap-2">
-                            <Avatar className="bg-green-500 flex items-center justify-center">
-                                <AvatarImage src={m.from === "me" ? user.image ?? "" : m.image} />
-                                <AvatarFallback>{meFallback}</AvatarFallback>
-                            </Avatar>
+    const onBanned = (data: { reason?: string; bannedUntil?: string | null }) => {
+      toast.error(data?.reason || "You are banned from chat.");
+    };
 
-                            <div>
-                                <p>{m.from === "me" ? "Me" : m.from}</p>
-                                <div className="font-normal">{m.message}</div>
-                            </div>
-                        </div>
-                    </div>
-                ))}
-            </div>
+    const onChatError = (data: { message?: string }) => {
+      toast.error(data?.message || "Chat error");
+    };
 
-            <div className="w-full backdrop-blur-lg p-4">
-                <div className="grid grid-cols-3 w-full gap-2">
-                    <Input
-                        value={message}
-                        placeholder="Message"
-                        className="col-span-2"
-                        onChange={(e) => setMessage(e.target.value)}
-                        onKeyDown={(e) => {
-                            if (e.key === "Enter" && !e.shiftKey) {
-                                e.preventDefault(); // prevent accidental form submit
-                                sendMessage();
-                            }
-                        }}
-                    />
+    socket.on("receive_message", onReceive);
+    socket.on("chat_banned", onBanned);
+    socket.on("chat_error", onChatError);
 
-                    <Button className="bg-green-500 hover:bg-green-400 text-gray-900" onClick={sendMessage}>
-                        Send <Send />
-                    </Button>
-                </div>
-            </div>
-        </div>
+    return () => {
+      socket.off("receive_message", onReceive);
+      socket.off("chat_banned", onBanned);
+      socket.off("chat_error", onChatError);
+    };
+  }, []);
+
+  // 3) Send message (do NOT append locally)
+  const sendMessage = () => {
+    const trimmed = message.trim();
+    if (!trimmed) return;
+
+    const wordCount = trimmed.split(/\s+/).filter(Boolean).length;
+    if (wordCount > 30) {
+      toast.error("Maximum 30 words only.");
+      return;
+    }
+
+    if (!token) {
+      toast.error("Chat not ready yet (missing token).");
+      return;
+    }
+
+    socket.emit(
+      "send_message",
+      { message: trimmed, token },
+      (ack?: { ok: boolean; error?: string }) => {
+        if (!ack?.ok) {
+          if (ack?.error === "banned") toast.error("You are banned from chat.");
+          else toast.error(ack?.error || "Message failed");
+          return;
+        }
+
+        // ✅ IMPORTANT: don't add to state here (server will echo it back)
+        setMessage("");
+      }
     );
+  };
+
+  return (
+    <div className="flex flex-col h-full w-full">
+      <div className="flex-1 w-full mt-4 overflow-y-auto overflow-x-hidden px-2 flex flex-col gap-2">
+        {messages.map((m) => {
+          const isMe = m.userId === user.id;
+          const fallback = (m.username?.charAt(0) || "U").toUpperCase();
+
+          return (
+            <div
+              key={m.id}
+              className={[
+                "px-4 py-2 rounded-lg max-w-[75%] break-words",
+                isMe ? "bg-green-500 text-white ml-auto" : "bg-blue-400 text-white mr-auto",
+              ].join(" ")}
+            >
+              <div className="text-sm font-bold flex items-start gap-2">
+                <Avatar className={isMe ? "bg-green-500" : "bg-blue-400"}>
+                  <AvatarImage src={isMe ? user.image ?? "" : m.image} />
+                  <AvatarFallback>{isMe ? meFallback : fallback}</AvatarFallback>
+                </Avatar>
+
+                <div>
+                  <p>{isMe ? "Me" : m.username}</p>
+                  <div className="font-normal">{m.message}</div>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="w-full backdrop-blur-lg p-4">
+        <div className="grid grid-cols-3 w-full gap-2">
+          <Input
+            value={message}
+            placeholder="Message"
+            className="col-span-2"
+            onChange={(e) => setMessage(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+              }
+            }}
+          />
+
+          <Button className="bg-green-500 hover:bg-green-400 text-gray-900" onClick={sendMessage}>
+            Send <Send />
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
 }
