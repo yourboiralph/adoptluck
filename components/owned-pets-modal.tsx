@@ -10,6 +10,7 @@ import BetButton from "./bet-button"
 import JoinButton from "./join-button"
 import { CoinSide } from "@/app/generated/prisma/enums"
 import { logger } from "@/lib/logger";
+import Link from "next/link";
 
 
 type Pet = {
@@ -98,25 +99,49 @@ export default function OwnedPetsModal({
         <DialogHeader>
           <DialogTitle>OWNED PETS</DialogTitle>
         </DialogHeader>
-        {loading ? (
-          <div className="flex space-x-2 items-center"><Spinner data-icon="inline-start" /><p>Loading...</p></div>
-        ) : (<div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
-          {pets.filter((pet) => pet.status !== "WITHDRAWED" && pet.pet_type.value > 0).map((pet) => (
-            <div key={pet.id} className={`bg-black/70 flex items-center justfy-center flex-col p-2 rounded-lg hover:scale-110 hover:cursor-pointer border ${selectedPets.includes(pet.id) ? "border-green-500" : "border-gray"}`} onClick={() => pet.status === "AVAILABLE" && selectPet(pet.id)}>
-              <PetImage
-                size={70}
-                src={pet.pet_type.image}
-                alt={pet.pet_type.name}
-              />
+        {(() => {
+          const filteredPets = pets.filter(
+            (pet) => pet.status !== "WITHDRAWED" && pet.pet_type.value > 0
+          );
 
-              <div className="flex justify-between gap-2">
-                <p>{pet.pet_type.value}</p>
-
-              </div>
-              <p>{pet.status === "LOCKED" ? "🔒" : pet.pet_type.value === 0 ? "❌ No Value" : pet.status === "ON_WITHDRAW" ? "🕒Withdraw" : "✅"}</p>
+          return loading ? (
+            <div className="flex space-x-2 items-center">
+              <Spinner data-icon="inline-start" />
+              <p>Loading...</p>
             </div>
-          ))}
-        </div>)}
+          ) : filteredPets.length > 0 ? (
+            <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
+              {filteredPets.map((pet) => (
+                <div
+                  key={pet.id}
+                  className={`bg-black/70 flex items-center justfy-center flex-col p-2 rounded-lg hover:scale-110 hover:cursor-pointer border ${selectedPets.includes(pet.id) ? "border-green-500" : "border-gray"
+                    }`}
+                  onClick={() => pet.status === "AVAILABLE" && selectPet(pet.id)}
+                >
+                  <PetImage size={70} src={pet.pet_type.image} alt={pet.pet_type.name} />
+                  <div className="flex justify-between gap-2">
+                    <p>{pet.pet_type.value}</p>
+                  </div>
+                  <p>
+                    {pet.status === "LOCKED"
+                      ? "🔒"
+                      : pet.pet_type.value === 0
+                        ? "❌ No Value"
+                        : pet.status === "ON_WITHDRAW"
+                          ? "🕒Withdraw"
+                          : "✅"}
+                  </p>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="w-full flex items-center justify-center flex-col gap-4">
+              <div>No Available Pets to Play.</div>
+              <Link href={"/deposit"}>
+                <Button className="bg-green-500 border border-green-400">Deposit Now</Button></Link>
+            </div>
+          );
+        })()}
 
         <div className="flex items-end justify-end">
           <BetButton mode={mode} selectedPets={selectedPets} setSelectedPets={setSelectedPets} setIsOpen={setIsOpen} gameId={gameId} player1Side={player1Side} />
