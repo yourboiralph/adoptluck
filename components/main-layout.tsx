@@ -12,7 +12,14 @@ export default async function MainLayout({
     const session = await getSession();
     if (!session?.user?.id) redirect("/login");
 
-    const user = session.user;
+    const user = {
+        ...session.user,
+        role: session.user.role ?? undefined,
+        isBanned: session.user.isBanned ?? undefined,
+        banReason: session.user.banReason ?? undefined,
+        bannedUntil: session.user.bannedUntil ?? undefined,
+    };
+
 
     return (
         <div className="relative mx-auto flex h-screen max-w-screen-3xl overflow-hidden bg-background">

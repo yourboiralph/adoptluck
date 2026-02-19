@@ -23,7 +23,7 @@ export const auth = betterAuth({
                 required: true,
                 unique: true
             },
-            role: {type: "string", required: true},
+            role: {type: "string", required: false},
             isBanned: { type: "boolean", required: false },
             banReason: { type: "string", required: false },
             bannedUntil: { type: "string", required: false }, // ISO string

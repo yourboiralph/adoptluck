@@ -30,7 +30,7 @@ model User {
   banReason       String?
   bannedUntil     DateTime? // null = permanent if isBanned true
   bannedAt        DateTime?
-  role            Roles     @default(Fish)
+  role            Roles?     @default(Fish)
 
   accounts         Account[]
   sessions         Session[]
