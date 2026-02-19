@@ -40,8 +40,6 @@ export function Sidebar() {
     const pathname = usePathname()
     const navigation = getNavigation(username)
     const role = session.data?.user.role
-
-    console.log("TEST" + session?.data?.user.role)
     const handleLogout = async () => {
         await authClient.signOut()
         window.location.href = "/login" // or wherever you want

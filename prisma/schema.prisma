@@ -7,45 +7,30 @@ datasource db {
   provider = "postgresql"
 }
 
-enum Roles {
-  Fish
-  Dolphin
-  Shark
-  Whale
-  Admin
-  Owner
-}
-
 model User {
-  id              String    @id @default(cuid())
-  name            String?
-  email           String?   @unique
-  emailVerified   Boolean   @default(false)
-  image           String?
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
-  username        String    @unique
-  displayUsername String?
-  isBanned        Boolean   @default(false)
-  banReason       String?
-  bannedUntil     DateTime? // null = permanent if isBanned true
-  bannedAt        DateTime?
-  role            Roles?     @default(Fish)
-
+  id               String      @id @default(cuid())
+  name             String?
+  email            String?     @unique
+  emailVerified    Boolean     @default(false)
+  image            String?
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+  username         String      @unique
+  displayUsername  String?
+  isBanned         Boolean     @default(false)
+  banReason        String?
+  bannedUntil      DateTime?
+  bannedAt         DateTime?
+  role             Roles?      @default(Fish)
   accounts         Account[]
-  sessions         Session[]
-  user_pets        User_pets[]
+  gameBets         GameBet[]
   games_as_player1 Game[]      @relation("GamePlayer1")
   games_as_player2 Game[]      @relation("GamePlayer2")
   games_won        Game[]      @relation("GameWinner")
-  gameBets         GameBet[]
+  sessions         Session[]
+  user_pets        User_pets[]
 
   @@map("user")
-}
-
-enum BotStatus {
-  AVAILABLE
-  UNAVAILABLE
 }
 
 model Bot {
@@ -104,26 +89,97 @@ model Verification {
   @@map("verification")
 }
 
+model Pet_types {
+  id      String      @id @default(cuid())
+  name    String
+  petkind String?
+  variant PetVariant  @default(NORMAL)
+  ride    Boolean     @default(false)
+  fly     Boolean     @default(false)
+  image   String?
+  value   Decimal     @db.Decimal(10, 4)
+  pets    User_pets[]
+
+  @@unique([name, variant, ride, fly])
+  @@map("pet_types")
+}
+
+model User_pets {
+  id             String    @id @default(cuid())
+  user_id        String
+  pet_type_id    String
+  status         PetStatus @default(AVAILABLE)
+  locked_game_id String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  gameBets       GameBet[]
+  pet_type       Pet_types @relation(fields: [pet_type_id], references: [id])
+  user           User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@index([user_id])
+  @@index([status])
+  @@index([locked_game_id])
+  @@map("user_pets")
+}
+
+model Game {
+  id              String     @id @default(cuid())
+  player1_id      String
+  player2_id      String?
+  status          GameStatus @default(WAITING)
+  player1_side    CoinSide
+  result          CoinSide?
+  winner_user_id  String?
+  resultIdFromApi String?
+  resultCreatedAt DateTime?
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+  bets            GameBet[]
+  player1         User       @relation("GamePlayer1", fields: [player1_id], references: [id], onDelete: Cascade)
+  player2         User?      @relation("GamePlayer2", fields: [player2_id], references: [id], onDelete: Cascade)
+  winner          User?      @relation("GameWinner", fields: [winner_user_id], references: [id])
+
+  @@index([player1_id])
+  @@index([player2_id])
+  @@index([status])
+  @@map("games")
+}
+
+model GameBet {
+  id             String    @id @default(cuid())
+  game_id        String
+  user_id        String
+  user_pet_id    String
+  value_snapshot Decimal   @db.Decimal(10, 4)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  game           Game      @relation(fields: [game_id], references: [id], onDelete: Cascade)
+  user           User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user_pet       User_pets @relation(fields: [user_pet_id], references: [id], onDelete: Cascade)
+
+  @@unique([game_id, user_pet_id])
+  @@index([game_id, user_id])
+  @@map("game_bets")
+}
+
+enum Roles {
+  Fish
+  Dolphin
+  Shark
+  Whale
+  Admin
+  Owner
+}
+
+enum BotStatus {
+  AVAILABLE
+  UNAVAILABLE
+}
+
 enum PetVariant {
   NORMAL
   NEON
   MEGA
-}
-
-model Pet_types {
-  id      String     @id @default(cuid())
-  name    String
-  petkind String?
-  variant PetVariant @default(NORMAL)
-  ride    Boolean    @default(false)
-  fly     Boolean    @default(false)
-  image   String?
-  value   Decimal    @db.Decimal(10, 4)
-
-  pets User_pets[]
-
-  @@unique([name, variant, ride, fly])
-  @@map("pet_types")
 }
 
 enum PetStatus {
@@ -133,83 +189,13 @@ enum PetStatus {
   WITHDRAWED
 }
 
-model User_pets {
-  id          String @id @default(cuid())
-  user_id     String
-  pet_type_id String
-
-  status         PetStatus @default(AVAILABLE)
-  locked_game_id String?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  user     User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  pet_type Pet_types @relation(fields: [pet_type_id], references: [id], onDelete: Restrict)
-
-  gameBets GameBet[]
-
-  @@index([user_id])
-  @@index([status])
-  @@index([locked_game_id])
-  @@map("user_pets")
-}
-
 enum GameStatus {
-  WAITING // created by p1, waiting for p2
-  SETTLED // finished & pets transferred
+  WAITING
+  SETTLED
   CANCELLED
 }
 
 enum CoinSide {
   HEADS
   TAILS
-}
-
-model Game {
-  id String @id @default(cuid())
-
-  player1_id String
-  player2_id String?
-
-  status GameStatus @default(WAITING)
-
-  player1_side    CoinSide
-  result          CoinSide?
-  winner_user_id  String?
-  resultIdFromApi String?
-  resultCreatedAt DateTime?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  player1 User  @relation("GamePlayer1", fields: [player1_id], references: [id], onDelete: Cascade)
-  player2 User? @relation("GamePlayer2", fields: [player2_id], references: [id], onDelete: Cascade)
-  winner  User? @relation("GameWinner", fields: [winner_user_id], references: [id], onDelete: SetNull)
-
-  bets GameBet[]
-
-  @@index([player1_id])
-  @@index([player2_id])
-  @@index([status])
-  @@map("games")
-}
-
-model GameBet {
-  id             String  @id @default(cuid())
-  game_id        String
-  user_id        String
-  user_pet_id    String
-  value_snapshot Decimal @db.Decimal(10, 4)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  game     Game      @relation(fields: [game_id], references: [id], onDelete: Cascade)
-  user     User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  user_pet User_pets @relation(fields: [user_pet_id], references: [id], onDelete: Cascade)
-
-  @@unique([game_id, user_pet_id])
-  @@index([game_id, user_id])
-  @@map("game_bets")
 }

@@ -13,6 +13,7 @@ type ServerChatPayload = {
   message: string;
   username: string;
   image: string;
+  role: string;
   userId: string;
   createdAt: string; // ISO string from server
 };
@@ -23,6 +24,7 @@ type ChatMessage = {
   username: string;
   image: string;
   userId: string;
+  role: string;
   createdAt: string; // ISO string
 };
 
@@ -82,6 +84,7 @@ export default function LongChat({ user }: LongChatProps) {
           id: `${data.userId}:${data.createdAt}`, // stable key
           message: data.message,
           username: data.username,
+          role: data.role,
           image: data.image || "",
           userId: data.userId,
           createdAt: data.createdAt,
@@ -162,14 +165,14 @@ export default function LongChat({ user }: LongChatProps) {
                 </Avatar>
 
                 <div>
-                  <div className="flex items-center">
+                  <div className="flex items-center gap-2">
                     <p>{isMe ? "Me" : m.username}</p>
-                    <p> {user?.role == "Owner" && <img src="/crown.svg" width={24} height={24} alt="crown" className="text-red-500" />}
-                        {user?.role == "Admin" && <img src="/shield.svg" width={24} height={24} alt="shield" />}
-                        {user?.role == "Whale" && <img src="/whale.svg" width={24} height={24} alt="whale" />}
-                        {user?.role == "Shark" && <img src="/shark.svg" width={24} height={24} alt="shark" />}
-                        {user?.role == "Dolphin" && <img src="/dolphin.svg" width={24} height={24} alt="dolphin" /> }
-                        {user?.role == "Fish" && <img src="/fish.svg" width={24} height={24} alt="fish" />}</p>
+                    <p> {m?.role == "Owner" && <img src="/crown.svg" width={24} height={24} alt="crown" />}
+                        {m?.role == "Admin" && <img src="/shield.svg" width={24} height={24} alt="shield" />}
+                        {m?.role == "Whale" && <img src="/whale.svg" width={24} height={24} alt="whale" />}
+                        {m?.role == "Shark" && <img src="/shark.svg" width={24} height={24} alt="shark" />}
+                        {m?.role == "Dolphin" && <img src="/dolphin.svg" width={24} height={24} alt="dolphin" /> }
+                        {m?.role == "Fish" && <img src="/fish.svg" width={24} height={24} alt="fish" />}</p>
                   </div>
                   <div className="font-normal">{m.message}</div>
                 </div>
