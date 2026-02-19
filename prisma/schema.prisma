@@ -8,15 +8,20 @@ datasource db {
 }
 
 model User {
-  id               String      @id @default(cuid())
-  name             String?
-  email            String?     @unique
-  emailVerified    Boolean     @default(false)
-  image            String?
-  createdAt        DateTime    @default(now())
-  updatedAt        DateTime    @updatedAt
-  username         String      @unique
-  displayUsername  String?
+  id              String    @id @default(cuid())
+  name            String?
+  email           String?   @unique
+  emailVerified   Boolean   @default(false)
+  image           String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  username        String    @unique
+  displayUsername String?
+  isBanned        Boolean   @default(false)
+  banReason       String?
+  bannedUntil     DateTime? // null = permanent if isBanned true
+  bannedAt        DateTime?
+
   accounts         Account[]
   sessions         Session[]
   user_pets        User_pets[]
@@ -145,9 +150,9 @@ model Game {
 
   status GameStatus @default(WAITING)
 
-  player1_side   CoinSide
-  result         CoinSide?
-  winner_user_id String?
+  player1_side    CoinSide
+  result          CoinSide?
+  winner_user_id  String?
   resultIdFromApi String?
   resultCreatedAt DateTime?
 

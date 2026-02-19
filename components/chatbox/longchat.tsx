@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
-import { socket } from "@/socket";
+import { connectAuthedSocket, socket } from "@/socket";
 import { toast } from "sonner";
 import { Avatar, AvatarFallback } from "../ui/avatar";
 import { AvatarImage } from "@radix-ui/react-avatar";
@@ -31,47 +31,48 @@ type User = {
 type LongChatProps = {
     user: User;
 };
+
 export default function LongChat({ user }: LongChatProps) {
-    const [message, setMessage] = useState<string>("");
+    const [message, setMessage] = useState("");
     const [messages, setMessages] = useState<ChatMessage[]>([]);
-    const [isConnected, setIsConnected] = useState(false);
+    const [token, setToken] = useState<string | null>(null);
 
-    const sendMessage = () => {
-        const trimmed = message.trim();
-        if (!trimmed) return;
+    const meFallback = useMemo(
+        () => (user.username?.charAt(0) || "U").toUpperCase(),
+        [user.username]
+    );
 
-        const wordCount = trimmed.split(/\s+/).length;
-
-        if (wordCount > 30) {
-            toast.error("Maximum 30 words only.")
-            return;
-        }
-
-        setMessages((prev) => [
-            ...prev,
-            { id: crypto.randomUUID(), message: trimmed, from: "me", createdAt: Date.now() },
-        ]);
-
-        socket.emit("send_message", { message: trimmed, username: user.username, image: user.image });
-        setMessage("");
-    };
-
-
+    // 1) Connect socket once + get token (client-only)
     useEffect(() => {
-        socket.connect();
+        let mounted = true;
 
-        const onConnect = () => setIsConnected(true);
-        const onDisconnect = () => setIsConnected(false);
+        (async () => {
+            try {
+                // If you want to keep "auth only for send_message",
+                // you technically don't need connectAuthedSocket().
+                // But it's fine to keep it if you already have it.
+                await connectAuthedSocket();
 
-        socket.on("connect", onConnect);
-        socket.on("disconnect", onDisconnect);
+                const res = await fetch("/api/socket-token", { credentials: "include" });
+                const json = await res.json();
+
+                if (!res.ok) throw new Error(json?.error || "socket-token failed");
+
+                if (mounted) setToken(json.token);
+            } catch (e: any) {
+                toast.error(e?.message || "Chat setup failed");
+            }
+        })();
 
         return () => {
-            socket.off("connect", onConnect);
-            socket.off("disconnect", onDisconnect);
+            mounted = false;
+            // ⚠️ Only disconnect here if this chat is the ONLY thing using the socket.
+            // If other parts of your app use the socket too, remove this disconnect.
+            socket.disconnect();
         };
     }, []);
 
+    // 2) Receive messages from server
     useEffect(() => {
         const onReceive = (data: { message: string; username?: string; image?: string }) => {
             setMessages((prev) => [
@@ -86,12 +87,67 @@ export default function LongChat({ user }: LongChatProps) {
             ]);
         };
 
+        const onBanned = (data: { reason?: string; bannedUntil?: string | null }) => {
+            toast.error(data?.reason || "You are banned from chat.");
+        };
+
+        const onChatError = (data: { message?: string }) => {
+            toast.error(data?.message || "Chat error");
+        };
+
         socket.on("receive_message", onReceive);
+        socket.on("chat_banned", onBanned);
+        socket.on("chat_error", onChatError);
 
         return () => {
             socket.off("receive_message", onReceive);
+            socket.off("chat_banned", onBanned);
+            socket.off("chat_error", onChatError);
         };
     }, []);
+
+    // 3) Send message ONLY after server ACKs success
+    const sendMessage = () => {
+        const trimmed = message.trim();
+        if (!trimmed) return;
+
+        const wordCount = trimmed.split(/\s+/).filter(Boolean).length;
+        if (wordCount > 30) {
+            toast.error("Maximum 30 words only.");
+            return;
+        }
+
+        if (!token) {
+            toast.error("Chat not ready yet (missing token).");
+            return;
+        }
+
+        socket.emit(
+            "send_message",
+            { message: trimmed, token }, // ✅ don’t send username/image from client (server should decide)
+            (ack?: { ok: boolean; error?: string }) => {
+                if (!ack?.ok) {
+                    // ✅ do NOT append locally if server rejected (banned, invalid token, etc.)
+                    if (ack?.error === "banned") toast.error("You are banned from chat.");
+                    else toast.error(ack?.error || "Message failed");
+                    return;
+                }
+
+                // ✅ append only after success
+                setMessages((prev) => [
+                    ...prev,
+                    {
+                        id: crypto.randomUUID(),
+                        message: trimmed,
+                        from: "me",
+                        createdAt: Date.now(),
+                    },
+                ]);
+
+                setMessage("");
+            }
+        );
+    };
 
     return (
         <div className="flex flex-col h-full w-full">
@@ -99,26 +155,20 @@ export default function LongChat({ user }: LongChatProps) {
                 {messages.map((m) => (
                     <div
                         key={m.id}
-                        className={`px-4 py-2 rounded-lg max-w-[75%] wrap-break-word break-all ${m.from === "me"
-                            ? "bg-green-500 text-white ml-auto"
-                            : "bg-blue-400 text-white mr-auto"
+                        className={`px-4 py-2 rounded-lg max-w-[75%] wrap-break-word break-all ${m.from === "me" ? "bg-green-500 text-white ml-auto" : "bg-blue-400 text-white mr-auto"
                             }`}
                     >
-                        <div className="text-sm font-bold flex items-start">
+                        <div className="text-sm font-bold flex items-start gap-2">
                             <Avatar className="bg-green-500 flex items-center justify-center">
-                                <AvatarImage src={m.from == "me" ? user.image ?? "" : m.image} />
-                                <AvatarFallback>{user.username.charAt(0).toUpperCase()}</AvatarFallback>
+                                <AvatarImage src={m.from === "me" ? user.image ?? "" : m.image} />
+                                <AvatarFallback>{meFallback}</AvatarFallback>
                             </Avatar>
+
                             <div>
-                                <p>
-                                    {m.from == "me" ? "Me" : m.from}
-                                </p>
-                                <div className="font-normal">
-                                    {m.message}
-                                </div>
+                                <p>{m.from === "me" ? "Me" : m.from}</p>
+                                <div className="font-normal">{m.message}</div>
                             </div>
                         </div>
-                        
                     </div>
                 ))}
             </div>
@@ -130,14 +180,19 @@ export default function LongChat({ user }: LongChatProps) {
                         placeholder="Message"
                         className="col-span-2"
                         onChange={(e) => setMessage(e.target.value)}
+                        onKeyDown={(e) => {
+                            if (e.key === "Enter" && !e.shiftKey) {
+                                e.preventDefault(); // prevent accidental form submit
+                                sendMessage();
+                            }
+                        }}
                     />
+
                     <Button className="bg-green-500 hover:bg-green-400 text-gray-900" onClick={sendMessage}>
-                        Send
-                        <Send />
+                        Send <Send />
                     </Button>
                 </div>
             </div>
         </div>
     );
-
 }

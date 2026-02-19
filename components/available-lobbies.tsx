@@ -100,11 +100,7 @@ export default function AvailableLobbies() {
     }
   }, []);
 
-  // connect + initial fetch
-  useEffect(() => {
-    if (!socket.connected) socket.connect();
-    fetchLobbies();
-  }, [fetchLobbies]);
+
 
   // Helper: start animation for a lobby id (optionally set winner)
   const startLobbyAnimation = useCallback(

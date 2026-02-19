@@ -21,12 +21,15 @@ export const auth = betterAuth({
                 type: "string",
                 required: true,
                 unique: true
-            }
+            },
+            isBanned: { type: "boolean", required: false },
+            banReason: { type: "string", required: false },
+            bannedUntil: { type: "string", required: false }, // ISO string
         }
     },
 
     plugins: [
         nextCookies(),
-        username(), // 👈 REQUIRED
+        username() // 👈 REQUIRED
     ],
 });
