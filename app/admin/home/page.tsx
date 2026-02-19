@@ -2,7 +2,6 @@ import prisma from "@/lib/prisma";
 import AssignUserPet from "./assign-user-pet";
 import { auth } from "@/lib/auth/auth";
 import { getSession } from "@/lib/auth/auth-actions";
-import { NextResponse } from "next/server";
 import { redirect } from "next/navigation";
 
 
@@ -11,10 +10,7 @@ export default async function AdminHomePage() {
 
   const session = await getSession()
   if (!session?.user?.id) {
-    return NextResponse.json(
-      { success: false, message: "Not authenticated" },
-      { status: 401 }
-    );
+    redirect("/")
   }
 
   if(session?.user.role !== "Admin" && session?.user.role !== "Owner"){
