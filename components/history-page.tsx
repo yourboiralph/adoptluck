@@ -43,7 +43,7 @@ export default async function HistoryPageComponent() {
                             <th className="text-left px-4 py-3">Status</th>
                             <th className="text-left px-4 py-3">Side</th>
                             <th className="text-left px-4 py-3">Result</th>
-                            <th className="text-left px-4 py-3">Check Fairness</th>
+                            <th className="text-left px-4 py-3">Result ID</th>
                             <th className="text-left px-4 py-3">Updated</th>
                         </tr>
                     </thead>

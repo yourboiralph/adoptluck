@@ -16,12 +16,12 @@ export default function ProvablyFairComponent() {
             Every coin flip is generated using a third party website:
             <br />
             • Random Look Up (<a
-              href="https://randomgeneratorapi.vercel.app/verify"
+              href="https://www.trustrng.online/"
               target="_blank"
               rel="noopener noreferrer"
               className="text-green-500 underline hover:text-green-400"
             >
-              randomgeneratorapi.vercel.app/verify
+              TrustRNG.online/verify
             </a>
             )
             <br />
