@@ -8,16 +8,14 @@ import { logger } from "@/lib/logger";
 import { cache } from "react"
 
 export async function signInWithUsername(username: string, password: string) {
-    const result = await auth.api.signInUsername({
-        body: {
-            username,
-            password
-        }
-    })
-
-    if (result?.user) {
-        redirect("/")
+  const result = await auth.api.signInUsername({
+    body: {
+      username,
+      password
     }
+  })
+
+  return { ok: true };
 }
 
 export async function signUpWithUsername(
@@ -67,19 +65,19 @@ export async function signUpWithUsername(
 
 
 export async function signOut() {
-    const result = await auth.api.signOut({
-        headers: await headers(),
-    });
+  const result = await auth.api.signOut({
+    headers: await headers(),
+  });
 
-    if (result.success) {
-        redirect("/sign-in");
-    }
+  if (result.success) {
+    redirect("/sign-in");
+  }
 }
 
 export const getSession = cache(async () => {
-    const result = await auth.api.getSession({
-        headers: await headers(),
-    });
+  const result = await auth.api.getSession({
+    headers: await headers(),
+  });
 
-    return result
+  return result
 })

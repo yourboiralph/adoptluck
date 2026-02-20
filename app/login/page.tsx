@@ -13,7 +13,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { signInWithUsername } from "@/lib/auth/auth-actions";
-import { redirect } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
 import { useState } from "react";
 import Image from "next/image";
 
@@ -22,7 +22,7 @@ export default function LoginPage() {
     username: "",
     password: "",
   });
-
+  const router = useRouter()
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | false>(false);
 
@@ -33,20 +33,22 @@ export default function LoginPage() {
     }));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-    setError(false);
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+  setIsLoading(true);
+  setError(false);
 
-    try {
-      await signInWithUsername(formData.username, formData.password);
-    } catch (err: any) {
-      setError(err?.message || "Login failed");
-      logger.log(err?.message || "Login failed");
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  try {
+    await signInWithUsername(formData.username, formData.password);
+    router.replace("/"); // or router.push("/")
+    router.refresh();    // optional, but often nice after auth
+  } catch (err: any) {
+    setError(err?.message || "Login failed");
+    logger.log(err?.message || "Login failed");
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   return (
     <div className="min-h-screen w-full bg-background overflow-hidden">
