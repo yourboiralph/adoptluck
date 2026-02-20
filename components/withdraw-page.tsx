@@ -17,7 +17,7 @@ type WithdrawPageProps = {
     botLink: string
 }
 
-export default function WithdrawPageComponent({botUser, botLink} : WithdrawPageProps) {
+export default function WithdrawPageComponent({ botUser, botLink }: WithdrawPageProps) {
     const router = useRouter()
     type Pet = {
         id: string,
@@ -152,23 +152,30 @@ export default function WithdrawPageComponent({botUser, botLink} : WithdrawPageP
                                 <NoPets />
                             </div>
                         ) : (
-                            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+                            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                                 {filteredPets.map((pet) => (
                                     <div
                                         key={pet.id}
                                         className={`bg-black/70 flex items-center justify-center flex-col p-2 rounded-lg hover:scale-110 hover:cursor-pointer border ${selectedPets.includes(pet.id)
-                                                ? "border-green-500"
-                                                : "border-gray"
+                                            ? "border-green-500"
+                                            : "border-gray"
                                             }`}
                                         onClick={() =>
                                             pet.status === "AVAILABLE" && selectPet(pet.id)
                                         }
                                     >
-                                        <PetImage
-                                            size={70}
-                                            src={pet.pet_type.image}
-                                            alt={pet.pet_type.name}
-                                        />
+                                        <div className="relative">
+                                            <PetImage
+                                                size={70}
+                                                src={pet.pet_type.image}
+                                                alt={pet.pet_type.name}
+                                            />
+                                            <div className="flex gap-0.5 absolute bottom-0 right-0">
+                                                {pet.pet_type.variant == "MEGA" ? <img src="/Mega.png" alt="mega" className="size-4" /> : pet.pet_type.variant == "NEON" ? <img src="/Neon.png" alt="neon" className="size-4" /> : ""}
+                                                {pet.pet_type.fly && <img src="/Fly.png" alt="fly" className="size-4" />}
+                                                {pet.pet_type.ride && <img src="/Ride.png" alt="ride" className="size-4" />}
+                                            </div>
+                                        </div>
                                         <p>{pet.pet_type.value}</p>
                                         <p>
                                             {pet.status === "LOCKED"

@@ -118,7 +118,18 @@ export default function OwnedPetsModal({
                     }`}
                   onClick={() => pet.status === "AVAILABLE" && selectPet(pet.id)}
                 >
-                  <PetImage size={70} src={pet.pet_type.image} alt={pet.pet_type.name} />
+                  <div className="relative">
+                    <PetImage
+                      size={70}
+                      src={pet.pet_type.image}
+                      alt={pet.pet_type.name}
+                    />
+                    <div className="flex gap-0.5 absolute bottom-0 right-0">
+                      {pet.pet_type.variant == "MEGA" ? <img src="/Mega.png" alt="mega" className="size-4" /> : pet.pet_type.variant == "NEON" ? <img src="/Neon.png" alt="neon" className="size-4" /> : ""}
+                      {pet.pet_type.fly && <img src="/Fly.png" alt="fly" className="size-4" />}
+                      {pet.pet_type.ride && <img src="/Ride.png" alt="ride" className="size-4" />}
+                    </div>
+                  </div>
                   <div className="flex justify-between gap-2">
                     <p>{pet.pet_type.value}</p>
                   </div>
