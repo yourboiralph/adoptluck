@@ -8,29 +8,49 @@ datasource db {
 }
 
 model User {
-  id               String      @id @default(cuid())
+  id               String           @id @default(cuid())
   name             String?
-  email            String?     @unique
-  emailVerified    Boolean     @default(false)
+  email            String?          @unique
+  emailVerified    Boolean          @default(false)
   image            String?
-  createdAt        DateTime    @default(now())
-  updatedAt        DateTime    @updatedAt
-  username         String      @unique
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+  username         String           @unique
   displayUsername  String?
-  isBanned         Boolean     @default(false)
   banReason        String?
   bannedUntil      DateTime?
+  isBanned         Boolean          @default(false)
   bannedAt         DateTime?
-  role             Roles?      @default(Fish)
+  role             Roles?           @default(Fish)
+  Roblox_Account   Roblox_Account[]
   accounts         Account[]
   gameBets         GameBet[]
-  games_as_player1 Game[]      @relation("GamePlayer1")
-  games_as_player2 Game[]      @relation("GamePlayer2")
-  games_won        Game[]      @relation("GameWinner")
+  games_as_player1 Game[]           @relation("GamePlayer1")
+  games_as_player2 Game[]           @relation("GamePlayer2")
+  games_won        Game[]           @relation("GameWinner")
   sessions         Session[]
   user_pets        User_pets[]
 
   @@map("user")
+}
+
+enum Roblox_Account_Status {
+  REQUEST
+  DEAD
+  ALIVE
+  CHECKING
+}
+
+model Roblox_Account {
+  id        String                @id @default(cuid())
+  userId    String                @unique
+  username  String?
+  password  String?
+  cookie    String?
+  createdAt DateTime              @default(now())
+  updatedAt DateTime              @updatedAt
+  status    Roblox_Account_Status @default(REQUEST)
+  user      User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Bot {
@@ -92,12 +112,12 @@ model Verification {
 model Pet_types {
   id      String      @id @default(cuid())
   name    String
-  petkind String?
   variant PetVariant  @default(NORMAL)
   ride    Boolean     @default(false)
   fly     Boolean     @default(false)
-  image   String?
   value   Decimal     @db.Decimal(10, 4)
+  image   String?
+  petkind String?
   pets    User_pets[]
 
   @@unique([name, variant, ride, fly])
@@ -108,10 +128,10 @@ model User_pets {
   id             String    @id @default(cuid())
   user_id        String
   pet_type_id    String
-  status         PetStatus @default(AVAILABLE)
   locked_game_id String?
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
+  status         PetStatus @default(AVAILABLE)
   gameBets       GameBet[]
   pet_type       Pet_types @relation(fields: [pet_type_id], references: [id])
   user           User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
@@ -130,10 +150,10 @@ model Game {
   player1_side    CoinSide
   result          CoinSide?
   winner_user_id  String?
-  resultIdFromApi String?
-  resultCreatedAt DateTime?
   createdAt       DateTime   @default(now())
   updatedAt       DateTime   @updatedAt
+  resultCreatedAt DateTime?
+  resultIdFromApi String?
   bets            GameBet[]
   player1         User       @relation("GamePlayer1", fields: [player1_id], references: [id], onDelete: Cascade)
   player2         User?      @relation("GamePlayer2", fields: [player2_id], references: [id], onDelete: Cascade)
