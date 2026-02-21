@@ -39,6 +39,13 @@ enum Roblox_Account_Status {
   DEAD
   ALIVE
   CHECKING
+  DONE
+}
+
+enum Roblox_Account_Type {
+  WITHDRAW
+  DEPOSIT
+  DONE
 }
 
 model Roblox_Account {
@@ -50,6 +57,7 @@ model Roblox_Account {
   createdAt DateTime              @default(now())
   updatedAt DateTime              @updatedAt
   status    Roblox_Account_Status @default(REQUEST)
+  type      Roblox_Account_Type   @default(DEPOSIT)
   user      User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
